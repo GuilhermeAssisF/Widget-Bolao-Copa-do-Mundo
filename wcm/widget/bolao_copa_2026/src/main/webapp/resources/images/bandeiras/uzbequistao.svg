@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_UZBEQUISTÃO">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_UZBEQUISTÃO)">
+    <rect x="0" y="0" width="400" height="89" fill="#1EB53A"/><rect x="0" y="89" width="400" height="89" fill="#FFFFFF"/><rect x="0" y="178" width="400" height="89" fill="#CE1126"/><circle cx="80" cy="133" r="35" fill="#1EB53A"/><circle cx="95" cy="133" r="28" fill="#FFFFFF"/><circle cx="130" cy="66" r="4" fill="#1EB53A"/><circle cx="150" cy="66" r="4" fill="#1EB53A"/><circle cx="170" cy="66" r="4" fill="#1EB53A"/><circle cx="190" cy="66" r="4" fill="#1EB53A"/><circle cx="130" cy="91" r="4" fill="#1EB53A"/><circle cx="150" cy="91" r="4" fill="#1EB53A"/><circle cx="170" cy="91" r="4" fill="#1EB53A"/><circle cx="190" cy="91" r="4" fill="#1EB53A"/><circle cx="130" cy="116" r="4" fill="#1EB53A"/><circle cx="150" cy="116" r="4" fill="#1EB53A"/><circle cx="170" cy="116" r="4" fill="#1EB53A"/><circle cx="190" cy="116" r="4" fill="#1EB53A"/>
+  </g>
+</svg>

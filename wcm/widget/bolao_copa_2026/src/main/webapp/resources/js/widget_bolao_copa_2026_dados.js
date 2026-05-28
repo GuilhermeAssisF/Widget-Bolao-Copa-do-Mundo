@@ -7,7 +7,7 @@
    ========================================================================== */
 
 var BOLAO_COPA_2026_DATA = {
-    "bandeirasBasePath": "/resources/images/bandeiras/",
+    "bandeirasBasePath": "/bolao_copa_2026/resources/images/bandeiras/",
     "selecoes": {
         "mexico": {
             "id": "mexico",

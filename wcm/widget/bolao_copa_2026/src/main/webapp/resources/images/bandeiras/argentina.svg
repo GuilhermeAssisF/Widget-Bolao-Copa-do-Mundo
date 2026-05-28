@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_ARGENTINA">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_ARGENTINA)">
+    <rect x="0" y="0" width="400" height="89" fill="#74ACDF"/><rect x="0" y="89" width="400" height="89" fill="#FFFFFF"/><rect x="0" y="178" width="400" height="89" fill="#74ACDF"/><circle cx="200" cy="133" r="38" fill="#F6B40E"/><line x1="240" y1="133" x2="258" y2="133" stroke="#F6B40E" stroke-width="4"/><line x1="237" y1="148" x2="254" y2="155" stroke="#F6B40E" stroke-width="4"/><line x1="228" y1="161" x2="241" y2="174" stroke="#F6B40E" stroke-width="4"/><line x1="215" y1="170" x2="222" y2="187" stroke="#F6B40E" stroke-width="4"/><line x1="200" y1="173" x2="200" y2="191" stroke="#F6B40E" stroke-width="4"/><line x1="185" y1="170" x2="178" y2="187" stroke="#F6B40E" stroke-width="4"/><line x1="172" y1="161" x2="159" y2="174" stroke="#F6B40E" stroke-width="4"/><line x1="163" y1="148" x2="146" y2="155" stroke="#F6B40E" stroke-width="4"/><line x1="160" y1="133" x2="142" y2="133" stroke="#F6B40E" stroke-width="4"/><line x1="163" y1="118" x2="146" y2="111" stroke="#F6B40E" stroke-width="4"/><line x1="172" y1="105" x2="159" y2="92" stroke="#F6B40E" stroke-width="4"/><line x1="185" y1="96" x2="178" y2="79" stroke="#F6B40E" stroke-width="4"/><line x1="200" y1="93" x2="200" y2="75" stroke="#F6B40E" stroke-width="4"/><line x1="215" y1="96" x2="222" y2="79" stroke="#F6B40E" stroke-width="4"/><line x1="228" y1="105" x2="241" y2="92" stroke="#F6B40E" stroke-width="4"/><line x1="237" y1="118" x2="254" y2="111" stroke="#F6B40E" stroke-width="4"/><circle cx="200" cy="133" r="25" fill="#F6B40E"/>
+  </g>
+</svg>

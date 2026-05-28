@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_PORTUGAL">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_PORTUGAL)">
+    <rect x="0" y="0" width="153" height="267" fill="#006600"/><rect x="153" y="0" width="247" height="267" fill="#FF0000"/><ellipse cx="143" cy="133" rx="22" ry="30" fill="#FFD700"/>
+  </g>
+</svg>

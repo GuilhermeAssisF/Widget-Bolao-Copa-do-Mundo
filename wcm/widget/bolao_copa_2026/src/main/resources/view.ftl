@@ -1,3 +1,7 @@
+<!-- Se a CDN estiver bloqueada no ambiente, baixe crypto-js.min.js para resources/js/crypto-js.min.js e carregue localmente aqui. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script type="text/javascript" src="/bolao_copa_2026/resources/js/oauth-1.0a.js"></script>
+
 <div 
     id="WidgetBolaoCopa2026_${instanceId}" 
     class="fluig-style-guide wcm-widget-class super-widget bolao-copa-widget" 

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_IRÃ">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_IRÃ)">
+    <rect x="0" y="0" width="400" height="89" fill="#239F40"/><rect x="0" y="89" width="400" height="89" fill="#FFFFFF"/><rect x="0" y="178" width="400" height="89" fill="#DA0000"/><circle cx="200" cy="133" r="25" fill="#DA0000"/>
+  </g>
+</svg>

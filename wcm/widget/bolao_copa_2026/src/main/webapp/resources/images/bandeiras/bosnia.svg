@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_BÓSNIA_E_HERZ">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_BÓSNIA_E_HERZ)">
+    <rect x="0" y="0" width="400" height="267" fill="#002395"/><polygon points="0,267 400,0 400,89 133,267" fill="#FECB00"/><polygon points="60,30 64,44 70,44 65,51 67,60 60,54 53,60 55,51 50,44 56,44" fill="#FFFFFF"/><polygon points="108,62 112,76 118,76 113,83 115,92 108,86 101,92 103,83 98,76 104,76" fill="#FFFFFF"/><polygon points="156,94 160,108 166,108 161,115 163,124 156,118 149,124 151,115 146,108 152,108" fill="#FFFFFF"/><polygon points="204,126 208,140 214,140 209,147 211,156 204,150 197,156 199,147 194,140 200,140" fill="#FFFFFF"/><polygon points="252,158 256,172 262,172 257,179 259,188 252,182 245,188 247,179 242,172 248,172" fill="#FFFFFF"/><polygon points="300,190 304,204 310,204 305,211 307,220 300,214 293,220 295,211 290,204 296,204" fill="#FFFFFF"/>
+  </g>
+</svg>

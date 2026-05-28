@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_JORDÂNIA">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_JORDÂNIA)">
+    <rect x="0" y="0" width="400" height="89" fill="#007A3D"/><rect x="0" y="89" width="400" height="89" fill="#FFFFFF"/><rect x="0" y="178" width="400" height="89" fill="#CE1126"/><polygon points="200,113 206,129 222,129 209,139 214,155 200,145 186,155 191,139 178,129 194,129" fill="#0A0A0A"/>
+  </g>
+</svg>

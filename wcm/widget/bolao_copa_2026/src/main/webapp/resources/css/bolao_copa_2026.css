@@ -1259,3 +1259,88 @@
     white-space: normal;
     line-height: 1.25;
 }
+
+.bolao-copa-widget .bolao-knockout-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 22px;
+}
+
+.bolao-copa-widget .bolao-knockout-tab {
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    background: #ffffff;
+    color: var(--bolao-text);
+    border-radius: 999px;
+    padding: 11px 18px;
+    font-size: 13px;
+    font-weight: 900;
+    transition: all 0.22s ease;
+}
+
+.bolao-copa-widget .bolao-knockout-tab:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.bolao-copa-widget .bolao-knockout-tab.active {
+    border-color: transparent;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--bolao-blue), var(--bolao-purple));
+    box-shadow: 0 12px 28px rgba(18, 56, 255, 0.25);
+}
+
+.bolao-copa-widget .bolao-knockout-tab.done {
+    border-color: rgba(0, 200, 83, 0.25);
+    background: rgba(0, 200, 83, 0.08);
+    color: #087f3f;
+}
+
+.bolao-copa-widget .bolao-knockout-tab.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.bolao-copa-widget .bolao-final-card {
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: var(--bolao-radius-lg);
+    box-shadow: var(--bolao-shadow-soft);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    padding: 28px;
+}
+
+.bolao-copa-widget .bolao-final-card h3 {
+    margin: 0 0 16px 0;
+    color: var(--bolao-dark);
+    font-size: 24px;
+    font-weight: 900;
+}
+
+.bolao-copa-widget .bolao-final-card p {
+    color: var(--bolao-muted);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.bolao-copa-widget .bolao-ged-success {
+    margin-top: 20px;
+    padding: 18px;
+    border-radius: 18px;
+    background: rgba(0, 200, 83, 0.1);
+    border: 1px solid rgba(0, 200, 83, 0.22);
+}
+
+.bolao-copa-widget .bolao-ged-success strong {
+    display: block;
+    color: #087f3f;
+    font-size: 16px;
+    font-weight: 900;
+    margin-bottom: 6px;
+}
+
+.bolao-copa-widget .bolao-ged-success p {
+    margin: 0 0 12px 0;
+    color: var(--bolao-text);
+}

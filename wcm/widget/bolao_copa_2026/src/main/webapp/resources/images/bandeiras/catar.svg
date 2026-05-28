@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_CATAR">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_CATAR)">
+    <rect x="0" y="0" width="400" height="267" fill="#FFFFFF"/><polygon points="150,0 130,33 150,66 130,99 150,132 130,165 150,198 130,231 150,264 150,267 0,267 0,0" fill="#8D1B3D"/>
+  </g>
+</svg>

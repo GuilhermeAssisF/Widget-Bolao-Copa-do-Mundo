@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_COREIA_DO_SUL">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_COREIA_DO_SUL)">
+    <rect x="0" y="0" width="400" height="267" fill="#C60C30"/><circle cx="200" cy="133" r="55" fill="#E8001D"/><path d="M 200,78 A 27.5,27.5 0 0,1 200,133" fill="#0057FF"/><rect x="102" y="70" width="36" height="6" fill="#0A0A0A"/><rect x="102" y="60" width="36" height="6" fill="#0A0A0A"/><rect x="102" y="80" width="36" height="6" fill="#0A0A0A"/><rect x="262" y="70" width="36" height="6" fill="#0A0A0A"/><rect x="262" y="60" width="36" height="6" fill="#0A0A0A"/><rect x="262" y="80" width="36" height="6" fill="#0A0A0A"/><rect x="102" y="190" width="36" height="6" fill="#0A0A0A"/><rect x="102" y="180" width="36" height="6" fill="#0A0A0A"/><rect x="102" y="200" width="36" height="6" fill="#0A0A0A"/><rect x="262" y="190" width="36" height="6" fill="#0A0A0A"/><rect x="262" y="180" width="36" height="6" fill="#0A0A0A"/><rect x="262" y="200" width="36" height="6" fill="#0A0A0A"/>
+  </g>
+</svg>
