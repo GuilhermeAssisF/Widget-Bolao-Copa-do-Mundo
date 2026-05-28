@@ -199,6 +199,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
 
     renderizarFaseGrupos: function () {
         this.calcularTodasClassificacoes();
+        this.atualizarClassificacaoPrincipal();
 
         var rodadaAtual = this.state.rodadaAtual || 1;
         var jogosDaRodada = this.state.jogos.filter(function (jogo) {
@@ -291,7 +292,6 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
         html += '<div class="bolao-match-card' + classeCompleto + '" data-match-id="' + this.escaparHtml(jogo.id) + '">';
 
         html += '   <div class="bolao-match-meta">';
-        html += '       <span class="bolao-match-id">' + this.escaparHtml(jogo.id) + '</span>';
         html += '       <span>' + this.formatarDataJogo(jogo.data) + ' • ' + this.escaparHtml(jogo.hora || '') + '</span>';
         html += '   </div>';
 
@@ -352,6 +352,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
 
         this.definirVencedorPalpite(matchId);
         this.calcularTodasClassificacoes();
+        this.atualizarClassificacaoPrincipal();
         this.atualizarSidebar();
         this.atualizarCardJogoCompleto(matchId);
         this.atualizarTabelasDaTela();
@@ -579,46 +580,64 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
         return html;
     },
 
+    renderizarGrupoClassificacaoCompacta: function (grupoId, classificacao) {
+        var html = '';
+
+        html += '<article class="bolao-main-classification-card">';
+        html += '   <header class="bolao-main-classification-header">';
+        html += '       <h4>Grupo ' + this.escaparHtml(grupoId) + '</h4>';
+        html += '       <span>' + (classificacao ? classificacao.length : 0) + ' seleções</span>';
+        html += '   </header>';
+
+        for (var i = 0; i < (classificacao || []).length; i++) {
+            var item = classificacao[i];
+            var selecao = this.obterSelecao(item.selecaoId);
+            var classe = i < 2 ? ' classificado' : '';
+
+            html += '   <div class="bolao-sidebar-team' + classe + '">';
+            html += '       <div class="bolao-sidebar-team-name">';
+            html += '           <img class="bolao-sidebar-flag" src="' + this.obterUrlBandeira(selecao) + '" alt="' + this.escaparHtml(selecao.nome) + '" onerror="this.onerror=null;this.src=\'' + this.obterPlaceholderBandeira() + '\'">';
+            html += '           <span title="' + this.escaparHtml(item.nome) + '">' + this.escaparHtml(item.nome) + '</span>';
+            html += '       </div>';
+            html += '       <strong>' + item.pontos + ' pts</strong>';
+            html += '   </div>';
+        }
+
+        html += '</article>';
+
+        return html;
+    },
+
     atualizarSidebar: function () {
         var nome = this.state.participante.nome && this.state.participante.nome.trim()
             ? this.state.participante.nome.trim()
             : 'Ainda não informado';
 
         $(this.getSeletor('bolaoNomeParticipante')).text(nome);
+    },
 
-        if (!this.state.classificacao || Object.keys(this.state.classificacao).length === 0) {
-            $(this.getSeletor('bolaoSidebarClassificacao')).html(
-                '<p class="bolao-empty-message">A classificação aparecerá após preencher os jogos.</p>'
-            );
+    atualizarClassificacaoPrincipal: function () {
+        var $container = $(this.getSeletor('bolaoMainClassificacao'));
+
+        if (!$container.length) {
             return;
         }
 
-        var html = '';
-
-        for (var grupoId in this.state.classificacao) {
-            if (!this.state.classificacao.hasOwnProperty(grupoId)) {
-                continue;
-            }
-
-            var classificacao = this.state.classificacao[grupoId];
-
-            html += '<div class="bolao-sidebar-group">';
-            html += '   <h5>Grupo ' + this.escaparHtml(grupoId) + '</h5>';
-
-            for (var i = 0; i < classificacao.length; i++) {
-                var item = classificacao[i];
-                var classe = i < 2 ? ' classificado' : '';
-
-                html += '   <div class="bolao-sidebar-team' + classe + '">';
-                html += '       <span>' + (i + 1) + '. ' + this.escaparHtml(item.nome) + '</span>';
-                html += '       <strong>' + item.pontos + ' pts</strong>';
-                html += '   </div>';
-            }
-
-            html += '</div>';
+        if (!this.state.classificacao || Object.keys(this.state.classificacao).length === 0) {
+            $container.html('<p class="bolao-empty-message">A classificação aparecerá após preencher os jogos.</p>');
+            return;
         }
 
-        $(this.getSeletor('bolaoSidebarClassificacao')).html(html);
+        var grupos = this.state.grupos || [];
+        var html = '';
+
+        for (var i = 0; i < grupos.length; i++) {
+            var grupo = grupos[i];
+            var classificacao = this.state.classificacao[grupo.id] || [];
+            html += this.renderizarGrupoClassificacaoCompacta(grupo.id, classificacao);
+        }
+
+        $container.html(html);
     },
 
     validarFaseGruposCompleta: function () {
@@ -765,6 +784,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
         this.atualizarBotoes();
         this.atualizarMenuEtapas();
         this.atualizarSidebar();
+        this.atualizarClassificacaoPrincipal();
     },
 
     renderizarDadosParticipante: function () {
@@ -810,9 +830,20 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
 
         html += '   </div>';
 
-        html += '   <span class="bolao-helper">';
-        html += '       Nesta primeira versão, os dados ficam apenas na tela. Depois vamos preparar o salvamento da simulação no Fluig.';
-        html += '   </span>';
+        html += '   <div class="bolao-regulamento-card">';
+        html += '       <div class="bolao-regulamento-header">';
+        html += '           <strong>Regulamento do bolão</strong>';
+        html += '           <span>Como funciona a pontuação</span>';
+        html += '       </div>';
+        html += '       <ul>';
+        html += '           <li>Palpites em todos os jogos da Copa.</li>';
+        html += '           <li>Ranking atualizado rodada após rodada.</li>';
+        html += '           <li>Pontuação acumulada rodada após rodada.</li>';
+        html += '           <li>Tabela atualizada ao fim de cada rodada.</li>';
+        html += '           <li>Acertou o placar: <strong>3 pontos</strong>.</li>';
+        html += '           <li>Acertou o resultado, vencedor ou empate: <strong>1 ponto</strong>.</li>';
+        html += '       </ul>';
+        html += '   </div>';
 
         html += '</div>';
 
