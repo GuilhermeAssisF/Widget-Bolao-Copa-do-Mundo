@@ -3188,33 +3188,6 @@
     height: auto;
 }
 
-.bolao-copa-widget .bolao-wrapper {
-    width: min(100%, 1480px);
-    min-height: 0;
-    margin: 0 auto;
-    display: flex;
-    align-items: stretch;
-}
-
-.bolao-copa-widget .bolao-sidebar {
-    position: relative;
-    top: auto;
-    left: auto;
-    right: auto;
-    bottom: auto;
-    height: auto;
-    max-height: none;
-    overflow-y: auto;
-    flex: 0 0 clamp(300px, 26vw, 380px);
-}
-
-.bolao-copa-widget .bolao-main {
-    flex: 1 1 auto;
-    min-width: 0;
-    width: auto;
-    margin: 0;
-}
-
 .bolao-copa-widget .bolao-main-summary,
 .bolao-copa-widget .bolao-form-card,
 .bolao-copa-widget .bolao-step-card,
@@ -3255,14 +3228,6 @@
         padding: 12px;
     }
 
-    .bolao-copa-widget .bolao-wrapper {
-        width: 100%;
-    }
-
-    .bolao-copa-widget .bolao-sidebar {
-        flex-basis: 300px;
-    }
-
     .bolao-copa-widget .bolao-form-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -3275,18 +3240,6 @@
 @media (max-width: 980px) {
     .bolao-copa-widget {
         padding: 10px;
-    }
-
-    .bolao-copa-widget .bolao-wrapper {
-        flex-direction: column;
-        border-radius: 22px;
-    }
-
-    .bolao-copa-widget .bolao-sidebar {
-        width: 100%;
-        flex: 0 0 auto;
-        border-radius: 22px 22px 0 0;
-        overflow: hidden;
     }
 
     .bolao-copa-widget .bolao-sidebar-brand {
@@ -3304,11 +3257,6 @@
 
     .bolao-copa-widget.bolao-sidebar-open-mobile .bolao-sidebar-body {
         display: flex;
-    }
-
-    .bolao-copa-widget .bolao-main {
-        padding: 16px;
-        border-radius: 0 0 22px 22px;
     }
 
     .bolao-copa-widget .bolao-hero {
