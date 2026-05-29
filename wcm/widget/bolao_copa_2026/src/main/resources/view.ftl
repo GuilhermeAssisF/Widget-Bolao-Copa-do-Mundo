@@ -1,6 +1,7 @@
 ﻿<!-- Se a CDN estiver bloqueada no ambiente, baixe crypto-js.min.js para resources/js/crypto-js.min.js e carregue localmente aqui. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 <script type="text/javascript" src="/bolao_copa_2026/resources/js/oauth-1.0a.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js" async defer></script>
 
 <div
     id="WidgetBolaoCopa2026_${instanceId}"
@@ -25,70 +26,83 @@
                         src="/bolao_copa_2026/resources/images/logos/logo_interhativa_branca.png"
                         alt="Interhativa" />
                 </div>
+
+                <button
+                    type="button"
+                    class="bolao-sidebar-mobile-toggle"
+                    id="btnBolaoSidebarToggle_${instanceId}"
+                    aria-label="Abrir menu da sidebar"
+                    aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
 
-            <div class="bolao-user-card">
-                <span>Participante</span>
-                <strong id="bolaoNomeParticipante_${instanceId}">Ainda não informado</strong>
-            </div>
-
-            <div class="bolao-sidebar-current-step">
-                <span class="bolao-eyebrow" id="bolaoEtapaLabel_${instanceId}">
-                    Etapa 1 de 4
-                </span>
-
-                <h3 id="bolaoEtapaTitulo_${instanceId}">
-                    Dados do participante
-                </h3>
-
-                <p id="bolaoEtapaDescricao_${instanceId}">
-                    Informe seus dados para iniciar a simulação do bolão.
-                </p>
-            </div>
-
-            <div class="bolao-sidebar-section bolao-premiacao-card">
-                <h4>Premiação</h4>
-
-                <div class="bolao-premio-item primeiro">
-                    <span>1º lugar</span>
-                    <strong>R$ 1.000,00</strong>
+            <div class="bolao-sidebar-body" id="bolaoSidebarBody_${instanceId}">
+                <div class="bolao-user-card">
+                    <span>Participante</span>
+                    <strong id="bolaoNomeParticipante_${instanceId}">Ainda não informado</strong>
                 </div>
 
-                <div class="bolao-premio-item segundo">
-                    <span>2º lugar</span>
-                    <strong>R$ 500,00</strong>
+                <div class="bolao-sidebar-current-step">
+                    <span class="bolao-eyebrow" id="bolaoEtapaLabel_${instanceId}">
+                        Etapa 1 de 4
+                    </span>
+
+                    <h3 id="bolaoEtapaTitulo_${instanceId}">
+                        Dados do participante
+                    </h3>
+
+                    <p id="bolaoEtapaDescricao_${instanceId}">
+                        Informe seus dados para iniciar a simulação do bolão.
+                    </p>
                 </div>
 
-                <div class="bolao-premio-item terceiro">
-                    <span>3º lugar</span>
-                    <strong>R$ 300,00</strong>
+                <div class="bolao-sidebar-section bolao-premiacao-card">
+                    <h4>Premiação</h4>
+
+                    <div class="bolao-premio-item primeiro">
+                        <span>1º lugar</span>
+                        <strong>R$ 1.000,00</strong>
+                    </div>
+
+                    <div class="bolao-premio-item segundo">
+                        <span>2º lugar</span>
+                        <strong>R$ 500,00</strong>
+                    </div>
+
+                    <div class="bolao-premio-item terceiro">
+                        <span>3º lugar</span>
+                        <strong>R$ 300,00</strong>
+                    </div>
                 </div>
-            </div>
 
-            <div class="bolao-sidebar-section">
-                <h4>Etapas</h4>
+                <div class="bolao-sidebar-section">
+                    <h4>Etapas</h4>
 
-                <ul class="bolao-step-list">
-                    <li class="active" data-step-menu="dados">
-                        <span>1</span>
-                        Dados
-                    </li>
+                    <ul class="bolao-step-list">
+                        <li class="active" data-step-menu="dados">
+                            <span>1</span>
+                            Dados
+                        </li>
 
-                    <li data-step-menu="grupos">
-                        <span>2</span>
-                        Fase de grupos
-                    </li>
+                        <li data-step-menu="grupos">
+                            <span>2</span>
+                            Fase de grupos
+                        </li>
 
-                    <li data-step-menu="mata_mata">
-                        <span>3</span>
-                        Mata-mata
-                    </li>
+                        <li data-step-menu="mata_mata">
+                            <span>3</span>
+                            Mata-mata
+                        </li>
 
-                    <li data-step-menu="resultado">
-                        <span>4</span>
-                        Resultado
-                    </li>
-                </ul>
+                        <li data-step-menu="resultado">
+                            <span>4</span>
+                            Resultado
+                        </li>
+                    </ul>
+                </div>
             </div>
         </aside>
 
@@ -113,6 +127,14 @@
                 <!-- O conteúdo das etapas será renderizado via JavaScript -->
 
             </section>
+
+            <button
+                type="button"
+                class="btn btn-default bolao-btn-secondary bolao-classificacao-toggle-mobile"
+                id="btnBolaoClassificacaoMobile_${instanceId}"
+                aria-expanded="false">
+                Ver classificação simulada
+            </button>
 
             <section class="bolao-classificacao-footer">
                 <div class="bolao-classificacao-footer-header">

@@ -1,5 +1,9 @@
-var WidgetBolaoCopa2026 = SuperWidget.extend({
+﻿var WidgetBolaoCopa2026 = SuperWidget.extend({
     instanceId: null,
+
+    googleDriveTokenClient: null,
+    googleDriveAccessToken: null,
+    googleDriveTokenExpiry: 0,
 
     authConfig: {
         url: typeof WCMAPI !== 'undefined' ? WCMAPI.getServerURL() : '',
@@ -7,7 +11,10 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
         consumerSecret: 's3cr3t_key_1nt_w1dt_0384183',
         token: '7e4f7fdb-b394-4385-8a88-95a87d475f41',
         tokenSecret: '9e9dcd7e-c8d2-4dd7-a69d-5f5083b9e2c0ec33ebf8-fa20-4ded-9376-0885093c95cf',
-        gedFolderId: 684
+        gedFolderId: 684,
+        googleDriveClientId: '286116751747-goda27iokurmta2tftnlgf4um29n8dpb.apps.googleusercontent.com',
+        googleDriveFolderId: '1LXt_ofQpB7QJufgwtlD37XOKuBnizojJ',
+        googleDriveScope: 'https://www.googleapis.com/auth/drive.file'
     },
 
     state: {
@@ -53,7 +60,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
                     var instancia = registry[instanceId];
 
                     if (!instancia) {
-                        console.warn('Nenhuma instância da widget Bolão Copa 2026 foi encontrada.');
+            console.warn('Nenhuma instância da widget Bolão Copa 2026 foi encontrada.');
                         return null;
                     }
 
@@ -205,6 +212,82 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
         $('html, body').stop(true).animate({ scrollTop: topo }, 250);
     },
 
+    alternarSidebarMobile: function () {
+        var $widget = $('#WidgetBolaoCopa2026_' + this.instanceId);
+        var $sidebar = $widget.find('.bolao-sidebar');
+        var $botao = $(this.getSeletor('btnBolaoSidebarToggle'));
+
+        if (!$widget.length || !$sidebar.length || !$botao.length) {
+            return;
+        }
+
+        var aberta = !$widget.hasClass('bolao-sidebar-open-mobile');
+        if (aberta) {
+            $widget.removeClass('bolao-classificacao-open-mobile');
+            $(this.getSeletor('btnBolaoClassificacaoMobile')).attr('aria-expanded', 'false');
+        }
+
+        $widget.toggleClass('bolao-sidebar-open-mobile', aberta);
+        $botao.attr('aria-expanded', aberta ? 'true' : 'false');
+        this.atualizarControlesMobile();
+    },
+
+    alternarClassificacaoMobile: function () {
+        var $widget = $('#WidgetBolaoCopa2026_' + this.instanceId);
+        var $botao = $(this.getSeletor('btnBolaoClassificacaoMobile'));
+
+        if (!$widget.length || !$botao.length) {
+            return;
+        }
+
+        var aberta = !$widget.hasClass('bolao-classificacao-open-mobile');
+        if (aberta) {
+            $widget.removeClass('bolao-sidebar-open-mobile');
+            $(this.getSeletor('btnBolaoSidebarToggle')).attr('aria-expanded', 'false');
+        }
+
+        $widget.toggleClass('bolao-classificacao-open-mobile', aberta);
+        $botao.attr('aria-expanded', aberta ? 'true' : 'false');
+        this.atualizarControlesMobile();
+    },
+
+    fecharPainelsMobile: function () {
+        var $widget = $('#WidgetBolaoCopa2026_' + this.instanceId);
+        var $sidebarBotao = $(this.getSeletor('btnBolaoSidebarToggle'));
+        var $classificacaoBotao = $(this.getSeletor('btnBolaoClassificacaoMobile'));
+
+        if (!$widget.length) {
+            return;
+        }
+
+        $widget.removeClass('bolao-sidebar-open-mobile bolao-classificacao-open-mobile');
+
+        if ($sidebarBotao.length) {
+            $sidebarBotao.attr('aria-expanded', 'false');
+        }
+
+        if ($classificacaoBotao.length) {
+            $classificacaoBotao.attr('aria-expanded', 'false');
+        }
+
+        this.atualizarControlesMobile();
+    },
+
+    atualizarControlesMobile: function () {
+        var $widget = $('#WidgetBolaoCopa2026_' + this.instanceId);
+        var $botaoClassificacao = $(this.getSeletor('btnBolaoClassificacaoMobile'));
+
+        if (!$widget.length || !$botaoClassificacao.length) {
+            return;
+        }
+
+        if ($widget.hasClass('bolao-classificacao-open-mobile')) {
+            $botaoClassificacao.text('Ocultar classificação');
+        } else {
+            $botaoClassificacao.text('Ver classificação simulada');
+        }
+    },
+
     registrarEventos: function () {
         var that = this;
 
@@ -218,6 +301,18 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
             .off('click', this.getSeletor('btnBolaoVoltar'))
             .on('click', this.getSeletor('btnBolaoVoltar'), function () {
                 that.voltarEtapa();
+            });
+
+        $(document)
+            .off('click', this.getSeletor('btnBolaoSidebarToggle'))
+            .on('click', this.getSeletor('btnBolaoSidebarToggle'), function () {
+                that.alternarSidebarMobile();
+            });
+
+        $(document)
+            .off('click', this.getSeletor('btnBolaoClassificacaoMobile'))
+            .on('click', this.getSeletor('btnBolaoClassificacaoMobile'), function () {
+                that.alternarClassificacaoMobile();
             });
 
         $(document)
@@ -971,6 +1066,8 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
     },
 
     renderizarEtapa: function () {
+        this.fecharPainelsMobile();
+
         if (this.state.etapaAtual === 'dados') {
             this.renderizarDadosParticipante();
         }
@@ -1113,7 +1210,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
 
         if (this.state.etapaAtual === 'resultado') {
             $btnVoltar.prop('disabled', false);
-            $btnAvancar.text('Gerar registro');
+            $btnAvancar.text('Enviar resultado');
         }
     },
 
@@ -1196,7 +1293,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
         }
 
         if (this.state.etapaAtual === 'resultado') {
-            this.salvarRegistroGED();
+            this.salvarResultadoDrive();
             return;
         }
     },
@@ -1908,18 +2005,6 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
         html += '   <p>Campeão previsto: <strong>' + this.escaparHtml(campeao) + '</strong></p>';
         html += '   <p>Todos os palpites foram registrados em memória. No próximo passo vamos preparar o envio final.</p>';
 
-        if (this.state.documentoGED && this.state.documentoGED.documentId) {
-            html += '<div class="bolao-ged-success">';
-            html += '   <strong>Registro salvo</strong>';
-            html += '   <p>Seu resultado foi salvo com sucesso.</p>';
-
-            if (this.state.documentoGED.link) {
-                html += '   <a href="' + this.escaparHtml(this.state.documentoGED.link) + '" target="_blank" class="btn btn-primary bolao-btn-primary">Abrir registro</a>';
-            }
-
-            html += '</div>';
-        }
-
         html += '</section>';
 
         $(this.getSeletor('bolaoConteudo')).html(html);
@@ -2401,6 +2486,288 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
         });
     },
 
+    googleDriveConfigurado: function () {
+        return !!(this.authConfig &&
+            this.authConfig.googleDriveClientId &&
+            this.authConfig.googleDriveFolderId);
+    },
+
+    gerarNomeArquivoDrive: function () {
+        var nome = this.state.participante && this.state.participante.nome
+            ? this.state.participante.nome
+            : 'participante';
+
+        var nomeSanitizado = String(nome)
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-zA-Z0-9]/g, '_')
+            .replace(/_+/g, '_')
+            .replace(/^_|_$/g, '');
+
+        var data = new Date();
+        var timestamp = data.getFullYear().toString() +
+            String(data.getMonth() + 1).padStart(2, '0') +
+            String(data.getDate()).padStart(2, '0') +
+            '_' +
+            String(data.getHours()).padStart(2, '0') +
+            String(data.getMinutes()).padStart(2, '0') +
+            String(data.getSeconds()).padStart(2, '0');
+
+        return 'Bolao_Copa_2026_' + nomeSanitizado + '_' + timestamp + '.xlsx';
+    },
+
+    montarWorkbookDrive: function () {
+        if (typeof XLSX === 'undefined') {
+            return null;
+        }
+
+        var registro = this.montarRegistroFinalGED();
+        var workbook = XLSX.utils.book_new();
+
+        var wsResumo = XLSX.utils.aoa_to_sheet([
+            ['Campo', 'Valor'],
+            ['Tipo de registro', registro.tipoRegistro],
+            ['Versão', registro.versaoRegistro],
+            ['Data de envio', registro.dataEnvio],
+            ['Participante', registro.participante.nome],
+            ['E-mail', registro.participante.email],
+            ['Telefone', registro.participante.telefone],
+            ['Campeão previsto', registro.campeao ? registro.campeao.vencedorLabel : 'Não definido'],
+            ['Total de jogos', registro.totais.totalJogos],
+            ['Total de grupos', registro.totais.totalGrupos],
+            ['Total de seleções', registro.totais.totalSelecoes]
+        ]);
+        XLSX.utils.book_append_sheet(workbook, wsResumo, 'Resumo');
+
+        var palpitesRows = [[
+            'Match ID', 'Fase', 'Grupo', 'Rodada', 'Time A', 'Time B',
+            'Placar A', 'Placar B', 'Vencedor'
+        ]];
+
+        for (var i = 0; i < registro.palpites.length; i++) {
+            var palpite = registro.palpites[i];
+            palpitesRows.push([
+                palpite.matchId,
+                palpite.fase,
+                palpite.grupo,
+                palpite.rodada,
+                palpite.timeA,
+                palpite.timeB,
+                palpite.placarA,
+                palpite.placarB,
+                palpite.vencedor
+            ]);
+        }
+
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(palpitesRows), 'Palpites');
+
+        var classificacaoRows = [[
+            'Grupo', 'Posição', 'Seleção', 'Pontos', 'Jogos', 'Vitórias', 'Empates', 'Derrotas', 'Saldo'
+        ]];
+
+        for (var grupoId in registro.classificacao) {
+            if (!registro.classificacao.hasOwnProperty(grupoId)) {
+                continue;
+            }
+
+            var listaClassificacao = registro.classificacao[grupoId] || [];
+
+            for (var pos = 0; pos < listaClassificacao.length; pos++) {
+                var item = listaClassificacao[pos];
+                classificacaoRows.push([
+                    grupoId,
+                    pos + 1,
+                    item.nome,
+                    item.pontos,
+                    item.jogos,
+                    item.vitorias,
+                    item.empates,
+                    item.derrotas,
+                    item.saldo
+                ]);
+            }
+        }
+
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(classificacaoRows), 'Classificacao');
+
+        return workbook;
+    },
+
+    converterWorkbookParaBlob: function (workbook) {
+        var arrayBuffer = XLSX.write(workbook, {
+            bookType: 'xlsx',
+            type: 'array'
+        });
+
+        return new Blob([arrayBuffer], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+    },
+
+    inicializarGoogleDriveTokenClient: function () {
+        if (this.googleDriveTokenClient || typeof window === 'undefined') {
+            return !!this.googleDriveTokenClient;
+        }
+
+        if (
+            typeof window.google === 'undefined' ||
+            !window.google.accounts ||
+            !window.google.accounts.oauth2 ||
+            !this.authConfig.googleDriveClientId
+        ) {
+            return false;
+        }
+
+        this.googleDriveTokenClient = window.google.accounts.oauth2.initTokenClient({
+            client_id: this.authConfig.googleDriveClientId,
+            scope: this.authConfig.googleDriveScope || 'https://www.googleapis.com/auth/drive.file',
+            callback: function () {}
+        });
+
+        return true;
+    },
+
+    obterAccessTokenGoogleDrive: function (callback) {
+        var that = this;
+
+        if (this.googleDriveAccessToken &&
+            this.googleDriveTokenExpiry &&
+            Date.now() < (this.googleDriveTokenExpiry - 60000)) {
+            callback(null, this.googleDriveAccessToken);
+            return;
+        }
+
+        var tentativas = 0;
+
+        var tentar = function () {
+            if (that.inicializarGoogleDriveTokenClient()) {
+                that.googleDriveTokenClient.callback = function (response) {
+                    if (!response) {
+                        callback(new Error('Resposta vazia da autenticação Google.'));
+                        return;
+                    }
+
+                    if (response.error) {
+                        callback(new Error(response.error));
+                        return;
+                    }
+
+                    that.googleDriveAccessToken = response.access_token;
+                    that.googleDriveTokenExpiry = Date.now() + ((response.expires_in || 3600) * 1000);
+                    callback(null, response.access_token);
+                };
+
+                that.googleDriveTokenClient.requestAccessToken({
+                    prompt: that.googleDriveAccessToken ? '' : 'consent'
+                });
+                return;
+            }
+
+            tentativas += 1;
+
+            if (tentativas > 20) {
+                callback(new Error('Biblioteca de autenticação do Google não carregada.'));
+                return;
+            }
+
+            setTimeout(tentar, 250);
+        };
+
+        tentar();
+    },
+
+    montarMultipartDrive: function (metadata, fileBlob, mimeType) {
+        var boundary = '----BolaoCopa2026' + Date.now();
+        var delimiter = '\r\n--' + boundary + '\r\n';
+        var closeDelimiter = '\r\n--' + boundary + '--';
+
+        return new Blob([
+            delimiter,
+            'Content-Type: application/json; charset=UTF-8\r\n\r\n',
+            JSON.stringify(metadata),
+            delimiter,
+            'Content-Type: ' + mimeType + '\r\n\r\n',
+            fileBlob,
+            closeDelimiter
+        ], {
+            type: 'multipart/related; boundary=' + boundary
+        });
+    },
+
+    uploadPlanilhaGoogleDrive: function (fileBlob, fileName, accessToken, callback) {
+        var folderId = this.authConfig.googleDriveFolderId;
+        var mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        var metadata = {
+            name: fileName,
+            parents: [folderId],
+            mimeType: mimeType
+        };
+
+        var body = this.montarMultipartDrive(metadata, fileBlob, mimeType);
+        var endpointUpload = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink';
+
+        $.ajax({
+            url: endpointUpload,
+            type: 'POST',
+            data: body,
+            processData: false,
+            contentType: body.type,
+            headers: {
+                Authorization: 'Bearer ' + accessToken
+            },
+            crossDomain: true,
+            success: function (response) {
+                callback(true, response && response.id ? response.id : null, response && response.webViewLink ? response.webViewLink : '', response);
+            },
+            error: function (xhr) {
+                callback(false, null, '', xhr);
+            }
+        });
+    },
+
+    converterBlobParaBase64: function (blob, callback) {
+        if (typeof FileReader === 'undefined') {
+            callback(new Error('Leitura de arquivo indisponível.'));
+            return;
+        }
+
+        var reader = new FileReader();
+
+        reader.onloadend = function () {
+            var resultado = reader.result || '';
+            var base64 = String(resultado).indexOf(',') >= 0
+                ? String(resultado).split(',')[1]
+                : String(resultado);
+
+            callback(null, base64);
+        };
+
+        reader.onerror = function () {
+            callback(new Error('Falha ao converter a planilha para envio.'));
+        };
+
+        reader.readAsDataURL(blob);
+    },
+
+    uploadPlanilhaDriveDataset: function (fileBlob, fileName, callback) {
+        var that = this;
+
+        this.obterAccessTokenGoogleDrive(function (erroToken, accessToken) {
+            if (erroToken || !accessToken) {
+                callback(false, null, '', erroToken || new Error('Autenticação pendente.'));
+                return;
+            }
+
+            that.uploadPlanilhaGoogleDrive(fileBlob, fileName, accessToken, function (sucesso, fileId, linkDocumento, response) {
+                callback(sucesso, fileId, linkDocumento, response);
+            });
+        });
+    },
+
+    salvarResultadoDrive: function () {
+        return this.salvarRegistroGED();
+    },
+
     salvarRegistroGED: function () {
         var that = this;
 
@@ -2840,8 +3207,10 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
 
         if (this.state.etapaAtual === 'resultado') {
             $btnVoltar.prop('disabled', false);
-            $btnAvancar.text('Enviar Resultado');
+            $btnAvancar.text('Enviar resultado');
         }
+
+        this.atualizarControlesMobile();
     },
 
     avancarEtapa: function () {
@@ -2901,8 +3270,8 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
             this.exibirMensagem(
                 'success',
                 'Mata-mata gerado',
-                'Os confrontos da primeira fase eliminatória foram montados com base na sua classificação.'
-            );
+            'Os confrontos da primeira fase eliminatória foram montados com base na sua classificação.'
+        );
 
             return;
         }
@@ -2943,8 +3312,9 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
         }
 
         if (this.state.etapaAtual === 'resultado') {
-            this.salvarRegistroGED();
+            this.salvarResultadoDrive();
             return;
         }
     },
 });
+

@@ -726,7 +726,8 @@
 
 .bolao-copa-widget .bolao-team.away {
     justify-content: flex-end;
-    text-align: right;
+    flex-direction: row-reverse;
+    text-align: left;
 }
 
 .bolao-copa-widget .bolao-team-name {
@@ -1156,7 +1157,8 @@
 
 .bolao-copa-widget .bolao-knockout-team.away {
     justify-content: flex-end;
-    text-align: right;
+    flex-direction: row-reverse;
+    text-align: left;
 }
 
 .bolao-copa-widget .bolao-knockout-team span {
@@ -2415,6 +2417,25 @@
     .bolao-copa-widget .bolao-regulamento-card ul {
         grid-template-columns: 1fr;
     }
+
+    .bolao-copa-widget .bolao-sidebar-brand {
+        gap: 8px;
+    }
+
+    .bolao-copa-widget .bolao-sidebar-mobile-toggle {
+        display: inline-flex;
+        flex: 0 0 auto;
+    }
+
+    .bolao-copa-widget .bolao-sidebar-body {
+        display: none;
+        padding-top: 6px;
+    }
+
+    .bolao-copa-widget.bolao-sidebar-open-mobile .bolao-sidebar-body {
+        display: flex;
+    }
+
 }
 
 @media (max-height: 850px) {
@@ -2798,36 +2819,78 @@
     box-shadow: 0 14px 30px rgba(15, 23, 42, 0.05);
 }
 
+.bolao-copa-widget .bolao-classificacao-toggle-mobile {
+    display: none !important;
+    width: 100%;
+    justify-content: center;
+    margin: 12px 0 14px;
+}
+
 .bolao-copa-widget .bolao-btn-primary,
 .bolao-copa-widget .bolao-btn-secondary {
-    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 20px;
+    border-radius: 14px;
     font-weight: 800;
+    letter-spacing: 0;
+    line-height: 1;
+    transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
 .bolao-copa-widget .bolao-btn-primary {
     border: 0;
     color: #ffffff;
-    background: linear-gradient(135deg, #1238ff, #6c00ff);
-    box-shadow: 0 14px 30px rgba(18, 56, 255, 0.22);
+    background: #1238ff;
+    box-shadow: 0 10px 20px rgba(18, 56, 255, 0.18);
 }
 
 .bolao-copa-widget .bolao-btn-primary:hover {
-    box-shadow: 0 16px 34px rgba(18, 56, 255, 0.28);
+    background: #0f2fd8;
+    box-shadow: 0 12px 24px rgba(18, 56, 255, 0.22);
+    transform: translateY(-1px);
 }
 
 .bolao-copa-widget .bolao-btn-secondary {
-    background: rgba(255, 255, 255, 0.9);
-    color: #0f172a;
+    background: rgba(255, 255, 255, 0.82);
+    color: #334155;
     border: 1px solid rgba(15, 23, 42, 0.12);
+    box-shadow: none;
 }
 
 .bolao-copa-widget .bolao-btn-secondary:hover {
     background: #ffffff;
-    border-color: rgba(15, 23, 42, 0.2);
+    border-color: rgba(18, 56, 255, 0.28);
+    color: #1238ff;
+}
+
+.bolao-copa-widget .bolao-classificacao-toggle-mobile {
+    min-height: 42px;
+    color: #1238ff;
+    background: rgba(18, 56, 255, 0.06);
+    border-color: rgba(18, 56, 255, 0.18);
+}
+
+.bolao-copa-widget .bolao-classificacao-toggle-mobile:hover {
+    background: rgba(18, 56, 255, 0.1);
+    border-color: rgba(18, 56, 255, 0.3);
+    color: #0f2fd8;
+}
+
+.bolao-copa-widget .bolao-btn-primary:focus,
+.bolao-copa-widget .bolao-btn-secondary:focus,
+.bolao-copa-widget .bolao-btn-primary:focus-visible,
+.bolao-copa-widget .bolao-btn-secondary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(18, 56, 255, 0.14);
 }
 
 .bolao-copa-widget .bolao-actions .btn[disabled] {
     opacity: 0.55;
+    box-shadow: none;
+    transform: none;
 }
 
 /* ==========================================================================
@@ -2859,6 +2922,37 @@
     padding-bottom: 12px;
     align-items: center;
     border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+.bolao-copa-widget .bolao-sidebar-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bolao-copa-widget .bolao-sidebar-mobile-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-left: auto;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.bolao-copa-widget .bolao-sidebar-mobile-toggle span {
+    display: block;
+    width: 4px;
+    height: 4px;
+    border-radius: 999px;
+    background: currentColor;
+    margin: 0 1.5px;
+    opacity: 0.9;
 }
 
 .bolao-copa-widget .bolao-worldcup-logo-box {
@@ -3069,5 +3163,370 @@
 
 .bolao-copa-widget .bolao-sidebar-flag {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.24);
+}
+
+/* ========================================================================== 
+   RESPONSIVIDADE FINAL
+   Camada de ajuste para consolidar o comportamento mobile/tablet
+   ========================================================================== */
+
+.bolao-copa-widget,
+.bolao-copa-widget * {
+    box-sizing: border-box;
+}
+
+.bolao-copa-widget {
+    width: 100%;
+    min-height: 100vh;
+    padding: 16px;
+    overflow-x: hidden;
+    align-items: flex-start;
+}
+
+.bolao-copa-widget img {
+    max-width: 100%;
+    height: auto;
+}
+
+.bolao-copa-widget .bolao-wrapper {
+    width: min(100%, 1480px);
+    min-height: 0;
+    margin: 0 auto;
+    display: flex;
+    align-items: stretch;
+}
+
+.bolao-copa-widget .bolao-sidebar {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    height: auto;
+    max-height: none;
+    overflow-y: auto;
+    flex: 0 0 clamp(300px, 26vw, 380px);
+}
+
+.bolao-copa-widget .bolao-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    margin: 0;
+}
+
+.bolao-copa-widget .bolao-main-summary,
+.bolao-copa-widget .bolao-form-card,
+.bolao-copa-widget .bolao-step-card,
+.bolao-copa-widget .bolao-group-card,
+.bolao-copa-widget .bolao-knockout-card,
+.bolao-copa-widget .bolao-classificacao-footer {
+    min-width: 0;
+}
+
+.bolao-copa-widget .bolao-form-grid,
+.bolao-copa-widget .bolao-groups-grid,
+.bolao-copa-widget .bolao-knockout-grid,
+.bolao-copa-widget .bolao-qualified-grid,
+.bolao-copa-widget .bolao-main-classificacao {
+    min-width: 0;
+}
+
+.bolao-copa-widget .bolao-round-tabs,
+.bolao-copa-widget .bolao-knockout-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+}
+
+.bolao-copa-widget .bolao-round-tabs::-webkit-scrollbar,
+.bolao-copa-widget .bolao-knockout-tabs::-webkit-scrollbar {
+    height: 6px;
+}
+
+.bolao-copa-widget .bolao-round-tabs::-webkit-scrollbar-thumb,
+.bolao-copa-widget .bolao-knockout-tabs::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.18);
+    border-radius: 999px;
+}
+
+@media (max-width: 1180px) {
+    .bolao-copa-widget {
+        padding: 12px;
+    }
+
+    .bolao-copa-widget .bolao-wrapper {
+        width: 100%;
+    }
+
+    .bolao-copa-widget .bolao-sidebar {
+        flex-basis: 300px;
+    }
+
+    .bolao-copa-widget .bolao-form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .bolao-copa-widget .bolao-qualified-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 980px) {
+    .bolao-copa-widget {
+        padding: 10px;
+    }
+
+    .bolao-copa-widget .bolao-wrapper {
+        flex-direction: column;
+        border-radius: 22px;
+    }
+
+    .bolao-copa-widget .bolao-sidebar {
+        width: 100%;
+        flex: 0 0 auto;
+        border-radius: 22px 22px 0 0;
+        overflow: hidden;
+    }
+
+    .bolao-copa-widget .bolao-sidebar-brand {
+        align-items: center;
+    }
+
+    .bolao-copa-widget .bolao-sidebar-mobile-toggle {
+        display: inline-flex;
+    }
+
+    .bolao-copa-widget .bolao-sidebar-body {
+        display: none;
+        padding-top: 8px;
+    }
+
+    .bolao-copa-widget.bolao-sidebar-open-mobile .bolao-sidebar-body {
+        display: flex;
+    }
+
+    .bolao-copa-widget .bolao-main {
+        padding: 16px;
+        border-radius: 0 0 22px 22px;
+    }
+
+    .bolao-copa-widget .bolao-hero {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 18px;
+    }
+
+    .bolao-copa-widget .bolao-hero-badge {
+        width: 100%;
+        min-width: 0;
+    }
+
+}
+
+@media (max-width: 720px) {
+    .bolao-copa-widget {
+        padding: 8px;
+    }
+
+    .bolao-copa-widget .bolao-wrapper {
+        border-radius: 18px;
+    }
+
+    .bolao-copa-widget .bolao-sidebar,
+    .bolao-copa-widget .bolao-main {
+        border-radius: 18px;
+    }
+
+    .bolao-copa-widget .bolao-main {
+        padding: 14px;
+    }
+
+    .bolao-copa-widget .bolao-hero h1 {
+        font-size: 26px;
+    }
+
+    .bolao-copa-widget .bolao-hero p {
+        font-size: 14px;
+    }
+
+    .bolao-copa-widget .bolao-form-header,
+    .bolao-copa-widget .bolao-group-header,
+    .bolao-copa-widget .bolao-form-icon,
+    .bolao-copa-widget .bolao-notification-card {
+        align-items: flex-start;
+    }
+
+    .bolao-copa-widget .bolao-form-grid,
+    .bolao-copa-widget .bolao-groups-grid,
+    .bolao-copa-widget .bolao-qualified-grid,
+    .bolao-copa-widget .bolao-knockout-grid,
+    .bolao-copa-widget .bolao-main-classificacao {
+        grid-template-columns: 1fr;
+    }
+
+    .bolao-copa-widget .bolao-classificacao-toggle-mobile {
+        display: inline-flex !important;
+    }
+
+    .bolao-copa-widget .bolao-classificacao-footer {
+        display: none;
+    }
+
+    .bolao-copa-widget.bolao-classificacao-open-mobile .bolao-classificacao-footer {
+        display: block;
+    }
+
+    .bolao-copa-widget .bolao-match-teams,
+    .bolao-copa-widget .bolao-knockout-teams {
+        grid-template-columns: minmax(0, 1fr) 52px;
+        gap: 8px 10px;
+    }
+
+    .bolao-copa-widget .bolao-team.home,
+    .bolao-copa-widget .bolao-knockout-team.home {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .bolao-copa-widget .bolao-team.away,
+    .bolao-copa-widget .bolao-knockout-team.away {
+        grid-column: 1;
+        grid-row: 2;
+        justify-content: flex-end;
+        text-align: left;
+        flex-direction: row-reverse;
+    }
+
+    .bolao-copa-widget .bolao-match-teams > .bolao-score-input[data-lado="A"],
+    .bolao-copa-widget .bolao-knockout-teams > .bolao-score-input[data-lado="A"] {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .bolao-copa-widget .bolao-match-teams > .bolao-score-input[data-lado="B"],
+    .bolao-copa-widget .bolao-knockout-teams > .bolao-score-input[data-lado="B"] {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    .bolao-copa-widget .bolao-score-input {
+        width: 52px;
+        min-width: 52px;
+        max-width: 52px;
+    }
+
+    .bolao-copa-widget .bolao-versus {
+        display: none;
+    }
+
+    .bolao-copa-widget .bolao-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .bolao-copa-widget .bolao-btn-primary,
+    .bolao-copa-widget .bolao-btn-secondary {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .bolao-copa-widget .bolao-round-tab,
+    .bolao-copa-widget .bolao-knockout-tab {
+        flex: 0 0 auto;
+    }
+
+    .bolao-copa-widget .bolao-table-classificacao th:nth-child(4),
+    .bolao-copa-widget .bolao-table-classificacao th:nth-child(5),
+    .bolao-copa-widget .bolao-table-classificacao th:nth-child(6),
+    .bolao-copa-widget .bolao-table-classificacao td:nth-child(4),
+    .bolao-copa-widget .bolao-table-classificacao td:nth-child(5),
+    .bolao-copa-widget .bolao-table-classificacao td:nth-child(6) {
+        display: none;
+    }
+
+    .bolao-copa-widget .bolao-classificacao-footer {
+        padding: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .bolao-copa-widget {
+        padding: 6px;
+    }
+
+    .bolao-copa-widget .bolao-wrapper {
+        border-radius: 16px;
+    }
+
+    .bolao-copa-widget .bolao-main {
+        padding: 12px;
+    }
+
+    .bolao-copa-widget .bolao-sidebar {
+        padding: 14px;
+    }
+
+    .bolao-copa-widget .bolao-sidebar-brand-copy h2 {
+        font-size: 18px;
+    }
+
+    .bolao-copa-widget .bolao-sidebar-mobile-toggle {
+        width: 36px;
+        height: 36px;
+    }
+
+    .bolao-copa-widget .bolao-hero {
+        padding: 16px;
+    }
+
+    .bolao-copa-widget .bolao-hero h1 {
+        font-size: 22px;
+    }
+
+    .bolao-copa-widget .bolao-hero-badge {
+        padding: 14px;
+    }
+
+    .bolao-copa-widget .bolao-form-card,
+    .bolao-copa-widget .bolao-step-card,
+    .bolao-copa-widget .bolao-group-card,
+    .bolao-copa-widget .bolao-knockout-card,
+    .bolao-copa-widget .bolao-classificacao-footer {
+        padding: 14px;
+        border-radius: 18px;
+    }
+
+    .bolao-copa-widget .bolao-form-header {
+        gap: 12px;
+    }
+
+    .bolao-copa-widget .bolao-form-header h3 {
+        font-size: 18px;
+    }
+
+    .bolao-copa-widget .bolao-field .form-control,
+    .bolao-copa-widget .bolao-score-input {
+        height: 44px;
+    }
+
+    .bolao-copa-widget .bolao-score-input {
+        font-size: 16px;
+    }
+
+    .bolao-copa-widget .bolao-match-card,
+    .bolao-copa-widget .bolao-knockout-card {
+        padding: 12px;
+    }
+
+    .bolao-copa-widget .bolao-notification-card {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .bolao-copa-widget .bolao-step-list li {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
 }
 
