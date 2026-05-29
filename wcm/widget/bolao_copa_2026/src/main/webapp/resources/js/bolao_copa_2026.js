@@ -2542,6 +2542,7 @@
         var workbook = XLSX.utils.book_new();
         var dataEnvio = registro.dataEnvio || new Date().toISOString();
         var participante = registro.participante || {};
+        var nomeParticipante = participante.nome || this.state.participante.nome || '';
         var metas = {
             serverURL: registro.metadadosFluig ? registro.metadadosFluig.serverURL : '',
             userCode: registro.metadadosFluig ? registro.metadadosFluig.userCode : '',
@@ -2564,13 +2565,14 @@
         XLSX.utils.book_append_sheet(workbook, wsResumo, 'Resumo');
 
         var palpitesRows = [[
-            'Match ID', 'Fase', 'Grupo', 'Rodada', 'Time A', 'Time B',
+            'Participante', 'Match ID', 'Fase', 'Grupo', 'Rodada', 'Time A', 'Time B',
             'Placar A', 'Placar B', 'Vencedor'
         ]];
 
         for (var i = 0; i < registro.palpites.length; i++) {
             var palpite = registro.palpites[i];
             palpitesRows.push([
+                nomeParticipante,
                 palpite.matchId,
                 palpite.fase,
                 palpite.grupo,

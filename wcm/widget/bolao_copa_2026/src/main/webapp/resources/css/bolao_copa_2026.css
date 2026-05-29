@@ -611,15 +611,15 @@
 }
 
 .bolao-copa-widget .bolao-round-tab:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    transform: translateY(-1px);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
 }
 
 .bolao-copa-widget .bolao-round-tab.active {
     border-color: transparent;
     color: #ffffff;
     background: linear-gradient(135deg, var(--bolao-blue), var(--bolao-purple));
-    box-shadow: 0 12px 28px rgba(18, 56, 255, 0.25);
+    box-shadow: 0 2px 6px rgba(18, 56, 255, 0.14);
 }
 
 .bolao-copa-widget .bolao-groups-grid {
@@ -1281,15 +1281,15 @@
 }
 
 .bolao-copa-widget .bolao-knockout-tab:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    transform: translateY(-1px);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
 }
 
 .bolao-copa-widget .bolao-knockout-tab.active {
     border-color: transparent;
     color: #ffffff;
     background: linear-gradient(135deg, var(--bolao-blue), var(--bolao-purple));
-    box-shadow: 0 12px 28px rgba(18, 56, 255, 0.25);
+    box-shadow: 0 2px 6px rgba(18, 56, 255, 0.14);
 }
 
 .bolao-copa-widget .bolao-knockout-tab.done {
@@ -1622,11 +1622,15 @@
     .bolao-copa-widget .bolao-hero {
         flex-direction: column;
         align-items: flex-start;
+        overflow: visible;
+        margin-bottom: 8px;
     }
 
     .bolao-copa-widget .bolao-hero-badge {
         width: 100%;
         min-width: 0;
+        box-shadow: 0 8px 18px rgba(18, 56, 255, 0.14);
+        margin-bottom: 6px;
     }
 
     .bolao-copa-widget .bolao-match-teams {
@@ -1648,6 +1652,52 @@
         .bolao-copa-widget .bolao-table-classificacao td:nth-child(5),
         .bolao-copa-widget .bolao-table-classificacao td:nth-child(6) {
         display: none;
+    }
+
+    .bolao-copa-widget .bolao-round-tabs,
+    .bolao-copa-widget .bolao-knockout-tabs {
+        padding-bottom: 12px;
+        margin-bottom: 10px;
+    }
+
+    body .toast,
+    body .toast-container,
+    body #toast-container,
+    body .toast-message,
+    body .toast-title,
+    body .alert,
+    body .alert .close {
+        max-width: calc(100vw - 16px);
+        box-sizing: border-box;
+    }
+
+    body .toast,
+    body .toast-container .toast,
+    body #toast-container > .toast,
+    body .alert {
+        width: calc(100vw - 16px) !important;
+        margin-left: 8px !important;
+        margin-right: 8px !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere;
+    }
+
+    body .toast-title,
+    body .toast-message,
+    body .alert,
+    body .alert * {
+        white-space: normal !important;
+        word-break: break-word !important;
+        line-height: 1.35;
+    }
+
+    body .toast-title {
+        font-size: 13px !important;
+    }
+
+    body .toast-message {
+        font-size: 13px !important;
     }
 }
 
@@ -2691,7 +2741,7 @@
 .bolao-copa-widget .bolao-form-header h3,
 .bolao-copa-widget .bolao-group-header h3,
 .bolao-copa-widget .bolao-classificacao-footer-header h3 {
-    color: #0b1220;
+    color: #f1f1f1;
 }
 
 .bolao-copa-widget .bolao-form-header p,
@@ -2826,8 +2876,9 @@
     margin: 12px 0 14px;
 }
 
-.bolao-copa-widget .bolao-btn-primary,
-.bolao-copa-widget .bolao-btn-secondary {
+.bolao-copa-widget .bolao-actions .btn.bolao-btn-primary,
+.bolao-copa-widget .bolao-actions .btn.bolao-btn-secondary,
+.bolao-copa-widget .bolao-actions .btn.bolao-classificacao-toggle-mobile {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2838,53 +2889,60 @@
     letter-spacing: 0;
     line-height: 1;
     transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease, transform 0.18s ease;
+    background-image: none !important;
+    appearance: none;
+    -webkit-appearance: none;
 }
 
-.bolao-copa-widget .bolao-btn-primary {
+.bolao-copa-widget .bolao-actions .btn.bolao-btn-primary {
     border: 0;
     color: #ffffff;
-    background: #1238ff;
-    box-shadow: 0 10px 20px rgba(18, 56, 255, 0.18);
+    background: linear-gradient(135deg, var(--bolao-blue), var(--bolao-blue-dark)) !important;
+    border-color: transparent !important;
+    box-shadow: 0 8px 16px rgba(18, 56, 255, 0.16);
 }
 
-.bolao-copa-widget .bolao-btn-primary:hover {
-    background: #0f2fd8;
-    box-shadow: 0 12px 24px rgba(18, 56, 255, 0.22);
+.bolao-copa-widget .bolao-actions .btn.bolao-btn-primary:hover {
+    background: linear-gradient(135deg, #0f2fd8, #0b1f92) !important;
+    box-shadow: 0 10px 20px rgba(18, 56, 255, 0.2);
     transform: translateY(-1px);
 }
 
-.bolao-copa-widget .bolao-btn-secondary {
-    background: rgba(255, 255, 255, 0.82);
+.bolao-copa-widget .bolao-actions .btn.bolao-btn-secondary {
+    background: rgba(255, 255, 255, 0.9) !important;
     color: #334155;
-    border: 1px solid rgba(15, 23, 42, 0.12);
+    border: 1px solid rgba(15, 23, 42, 0.1) !important;
     box-shadow: none;
 }
 
-.bolao-copa-widget .bolao-btn-secondary:hover {
+.bolao-copa-widget .bolao-actions .btn.bolao-btn-secondary:hover {
     background: #ffffff;
     border-color: rgba(18, 56, 255, 0.28);
     color: #1238ff;
 }
 
-.bolao-copa-widget .bolao-classificacao-toggle-mobile {
+.bolao-copa-widget .bolao-actions .btn.bolao-classificacao-toggle-mobile {
     min-height: 42px;
     color: #1238ff;
-    background: rgba(18, 56, 255, 0.06);
-    border-color: rgba(18, 56, 255, 0.18);
+    background: rgba(18, 56, 255, 0.06) !important;
+    border-color: rgba(18, 56, 255, 0.16) !important;
+    box-shadow: none;
 }
 
-.bolao-copa-widget .bolao-classificacao-toggle-mobile:hover {
-    background: rgba(18, 56, 255, 0.1);
-    border-color: rgba(18, 56, 255, 0.3);
+.bolao-copa-widget .bolao-actions .btn.bolao-classificacao-toggle-mobile:hover {
+    background: rgba(18, 56, 255, 0.1) !important;
+    border-color: rgba(18, 56, 255, 0.24) !important;
     color: #0f2fd8;
 }
 
-.bolao-copa-widget .bolao-btn-primary:focus,
-.bolao-copa-widget .bolao-btn-secondary:focus,
-.bolao-copa-widget .bolao-btn-primary:focus-visible,
-.bolao-copa-widget .bolao-btn-secondary:focus-visible {
+.bolao-copa-widget .bolao-actions .btn.bolao-btn-primary:focus,
+.bolao-copa-widget .bolao-actions .btn.bolao-btn-secondary:focus,
+.bolao-copa-widget .bolao-actions .btn.bolao-classificacao-toggle-mobile:focus,
+.bolao-copa-widget .bolao-actions .btn.bolao-btn-primary:focus-visible,
+.bolao-copa-widget .bolao-actions .btn.bolao-btn-secondary:focus-visible,
+.bolao-copa-widget .bolao-actions .btn.bolao-classificacao-toggle-mobile:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 4px rgba(18, 56, 255, 0.14);
+    box-shadow: 0 0 0 4px rgba(18, 56, 255, 0.12);
 }
 
 .bolao-copa-widget .bolao-actions .btn[disabled] {
@@ -3208,8 +3266,12 @@
 .bolao-copa-widget .bolao-round-tabs,
 .bolao-copa-widget .bolao-knockout-tabs {
     overflow-x: auto;
+    overflow-y: visible;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 4px;
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 2;
 }
 
 .bolao-copa-widget .bolao-round-tabs::-webkit-scrollbar,
@@ -3434,6 +3496,7 @@
 
     .bolao-copa-widget .bolao-hero-badge {
         padding: 14px;
+        box-shadow: 0 6px 14px rgba(18, 56, 255, 0.12);
     }
 
     .bolao-copa-widget .bolao-form-card,
@@ -3477,4 +3540,3 @@
         padding-right: 8px;
     }
 }
-
