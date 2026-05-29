@@ -299,6 +299,12 @@
             });
 
         $(document)
+            .off('click', '#WidgetBolaoCopa2026_' + this.instanceId + ' .bolao-nova-simulacao-btn')
+            .on('click', '#WidgetBolaoCopa2026_' + this.instanceId + ' .bolao-nova-simulacao-btn', function () {
+                that.iniciarNovaSimulacao();
+            });
+
+        $(document)
             .off('click', this.getSeletor('btnBolaoVoltar'))
             .on('click', this.getSeletor('btnBolaoVoltar'), function () {
                 that.voltarEtapa();
@@ -572,6 +578,7 @@
 
         html += '   <div class="bolao-match-meta">';
         html += '       <span>' + this.formatarDataJogo(jogo.data) + ' • ' + this.escaparHtml(jogo.hora || '') + '</span>';
+        html += '       <span class="bolao-match-id">' + this.escaparHtml(jogo.id) + '</span>';
         html += '   </div>';
 
         html += '   <div class="bolao-match-teams">';
@@ -1085,6 +1092,10 @@
             this.renderizarResultadoFinal();
         }
 
+        if (this.state.etapaAtual === 'enviado') {
+            this.renderizarEnvioConcluido();
+        }
+
         this.atualizarCabecalho();
         this.atualizarBotoes();
         this.atualizarMenuEtapas();
@@ -1184,6 +1195,13 @@
             $(this.getSeletor('bolaoEtapaDescricao')).text('Confira o resumo do seu bolão antes do envio.');
             return;
         }
+
+        if (this.state.etapaAtual === 'enviado') {
+            $(this.getSeletor('bolaoEtapaLabel')).text('Envio concluído');
+            $(this.getSeletor('bolaoEtapaTitulo')).text('Palpites enviados');
+            $(this.getSeletor('bolaoEtapaDescricao')).text('Obrigado por participar do Bolão Copa 2026.');
+            return;
+        }
     },
 
 
@@ -1212,6 +1230,12 @@
         if (this.state.etapaAtual === 'resultado') {
             $btnVoltar.prop('disabled', false);
             $btnAvancar.text('Enviar resultado');
+            return;
+        }
+
+        if (this.state.etapaAtual === 'enviado') {
+            $btnVoltar.prop('disabled', true);
+            $btnAvancar.text('Iniciar nova simulação');
         }
     },
 
@@ -1295,6 +1319,11 @@
 
         if (this.state.etapaAtual === 'resultado') {
             this.salvarResultadoDrive();
+            return;
+        }
+
+        if (this.state.etapaAtual === 'enviado') {
+            this.iniciarNovaSimulacao();
             return;
         }
     },
@@ -2011,6 +2040,19 @@
         $(this.getSeletor('bolaoConteudo')).html(html);
     },
 
+    renderizarEnvioConcluido: function () {
+        var html = '';
+
+        html += '<section class="bolao-final-card bolao-envio-concluido-card">';
+        html += '   <h3>Parabéns, seus palpites foram enviados!</h3>';
+        html += '   <p>Recebemos o resultado do seu bolão e salvamos a planilha para conferência.</p>';
+        html += '   <p>Se quiser começar uma nova simulação, seus dados anteriores já foram limpos deste navegador.</p>';
+        html += '   <button type="button" class="btn btn-primary bolao-btn-primary bolao-nova-simulacao-btn">Iniciar nova simulação</button>';
+        html += '</section>';
+
+        $(this.getSeletor('bolaoConteudo')).html(html);
+    },
+
     definirCampeaoFinal: function () {
         var fases = this.state.fasesMataMataDisponiveis || [];
 
@@ -2517,20 +2559,23 @@
         var nomeSanitizado = String(nome)
             .normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-zA-Z0-9]/g, '_')
-            .replace(/_+/g, '_')
-            .replace(/^_|_$/g, '');
+            .replace(/[^a-zA-Z0-9]/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '')
+            .toUpperCase();
+
+        if (!nomeSanitizado) {
+            nomeSanitizado = 'PARTICIPANTE';
+        }
 
         var data = new Date();
-        var timestamp = data.getFullYear().toString() +
+        var dataResultado = data.getFullYear().toString() +
+            '-' +
             String(data.getMonth() + 1).padStart(2, '0') +
-            String(data.getDate()).padStart(2, '0') +
-            '_' +
-            String(data.getHours()).padStart(2, '0') +
-            String(data.getMinutes()).padStart(2, '0') +
-            String(data.getSeconds()).padStart(2, '0');
+            '-' +
+            String(data.getDate()).padStart(2, '0');
 
-        return 'Bolao_Copa_2026_' + nomeSanitizado + '_' + timestamp + '.xlsx';
+        return nomeSanitizado + '_' + dataResultado + '-RESULTADO.xlsx';
     },
 
     montarWorkbookBolao: function (documentId) {
@@ -2822,6 +2867,38 @@
         return this.salvarResultadoExcelFluig();
     },
 
+    finalizarEnvioResultado: function () {
+        this.limparEstadoLocalStorage();
+        this.state.etapaAtual = 'enviado';
+        this.renderizarEtapa();
+    },
+
+    iniciarNovaSimulacao: function () {
+        this.limparEstadoLocalStorage();
+
+        this.state.etapaAtual = 'dados';
+        this.state.rodadaAtual = 1;
+        this.state.faseMataMataAtual = 'round_32';
+        this.state.fasesMataMataDisponiveis = [];
+        this.state.participante = {
+            nome: '',
+            email: '',
+            telefone: ''
+        };
+        this.state.classificacao = {};
+        this.state.melhoresTerceiros = [];
+        this.state.classificados = [];
+        this.state.mapaClassificados = {};
+        this.state.mataMata = {};
+        this.state.mataMataResolvido = {};
+        this.state.campeao = null;
+        this.state.documentoGED = null;
+
+        this.inicializarDadosCopa();
+        this.renderizarEtapa();
+        this.atualizarSidebar();
+    },
+
     obterPayloadEmailBolao: function (linkDocumento, documentId, fileName) {
         return {
             destinatario: this.authConfig.emailResponsavelBolao || '',
@@ -2918,6 +2995,20 @@
             callback(envioOk, primeiroRegistro, mensagem);
         } catch (e) {
             this.enviarEmailResponsavelBolaoViaAjax(datasetNames, payload, callback);
+        }
+    },
+
+    limparEstadoLocalStorage: function () {
+        var chave = this.obterChaveLocalStorage();
+
+        if (!chave) {
+            return;
+        }
+
+        try {
+            window.localStorage.removeItem(chave);
+        } catch (erro) {
+            console.warn('Não foi possível limpar o estado salvo localmente.', erro);
         }
     },
 
@@ -3201,7 +3292,7 @@
                     );
                 }
 
-                that.renderizarEtapa();
+                that.finalizarEnvioResultado();
             });
         });
     },
@@ -3575,6 +3666,13 @@
         if (this.state.etapaAtual === 'resultado') {
             $btnVoltar.prop('disabled', false);
             $btnAvancar.text('Enviar resultado');
+            this.atualizarControlesMobile();
+            return;
+        }
+
+        if (this.state.etapaAtual === 'enviado') {
+            $btnVoltar.prop('disabled', true);
+            $btnAvancar.text('Iniciar nova simulação');
         }
 
         this.atualizarControlesMobile();
@@ -3680,6 +3778,11 @@
 
         if (this.state.etapaAtual === 'resultado') {
             this.salvarResultadoDrive();
+            return;
+        }
+
+        if (this.state.etapaAtual === 'enviado') {
+            this.iniciarNovaSimulacao();
             return;
         }
     },
