@@ -1,23 +1,29 @@
-<!-- Se a CDN estiver bloqueada no ambiente, baixe crypto-js.min.js para resources/js/crypto-js.min.js e carregue localmente aqui. -->
+﻿<!-- Se a CDN estiver bloqueada no ambiente, baixe crypto-js.min.js para resources/js/crypto-js.min.js e carregue localmente aqui. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 <script type="text/javascript" src="/bolao_copa_2026/resources/js/oauth-1.0a.js"></script>
 
-<div 
-    id="WidgetBolaoCopa2026_${instanceId}" 
-    class="fluig-style-guide wcm-widget-class super-widget bolao-copa-widget" 
+<div
+    id="WidgetBolaoCopa2026_${instanceId}"
+    class="fluig-style-guide wcm-widget-class super-widget bolao-copa-widget"
     data-params="WidgetBolaoCopa2026.instance()">
 
     <div class="bolao-wrapper">
 
         <aside class="bolao-sidebar">
             <div class="bolao-sidebar-brand">
-                <div class="bolao-logo-mark">
-                    <span>26</span>
+                <div class="bolao-logo-mark bolao-worldcup-logo-box">
+                    <img
+                        class="bolao-logo-image bolao-worldcup-logo"
+                        src="/bolao_copa_2026/resources/images/logos/logo_copa_2026.png"
+                        alt="Copa 2026" />
                 </div>
 
-                <div>
-                    <h2>Bolão Copa</h2>
-                    <p>Simulador 2026</p>
+                <div class="bolao-sidebar-brand-copy">
+                    <h2>Bolão da Copa</h2>
+                    <img
+                        class="bolao-brand-interhativa bolao-interhativa-logo"
+                        src="/bolao_copa_2026/resources/images/logos/logo_interhativa_branca.png"
+                        alt="Interhativa" />
                 </div>
             </div>
 
@@ -100,8 +106,8 @@
                 </div>
             </section>
 
-            <section 
-                id="bolaoConteudo_${instanceId}" 
+            <section
+                id="bolaoConteudo_${instanceId}"
                 class="bolao-content">
 
                 <!-- O conteúdo das etapas será renderizado via JavaScript -->
@@ -123,16 +129,16 @@
             </section>
 
             <footer class="bolao-actions">
-                <button 
-                    type="button" 
-                    id="btnBolaoVoltar_${instanceId}" 
+                <button
+                    type="button"
+                    id="btnBolaoVoltar_${instanceId}"
                     class="btn btn-default bolao-btn-secondary">
                     Voltar
                 </button>
 
-                <button 
-                    type="button" 
-                    id="btnBolaoAvancar_${instanceId}" 
+                <button
+                    type="button"
+                    id="btnBolaoAvancar_${instanceId}"
                     class="btn btn-primary bolao-btn-primary">
                     Avançar
                 </button>
