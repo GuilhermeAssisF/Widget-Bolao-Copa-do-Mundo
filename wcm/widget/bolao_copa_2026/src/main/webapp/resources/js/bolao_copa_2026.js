@@ -12,6 +12,7 @@
         token: '7e4f7fdb-b394-4385-8a88-95a87d475f41',
         tokenSecret: '9e9dcd7e-c8d2-4dd7-a69d-5f5083b9e2c0ec33ebf8-fa20-4ded-9376-0885093c95cf',
         gedFolderId: 684,
+        emailResponsavelBolao: 'assisguilhermefernandes@gmail.com',
         googleDriveClientId: '286116751747-goda27iokurmta2tftnlgf4um29n8dpb.apps.googleusercontent.com',
         googleDriveFolderId: '1LXt_ofQpB7QJufgwtlD37XOKuBnizojJ',
         googleDriveScope: 'https://www.googleapis.com/auth/drive.file'
@@ -2419,7 +2420,8 @@
             downloadEnabled: true,
             internalVisualizer: true,
             isPrivate: false,
-            publicDocument: false,
+            privateDocument: false,
+            publicDocument: true,
             attachments: [
                 {
                     fileName: fileName,
@@ -2493,6 +2495,21 @@
     },
 
     gerarNomeArquivoDrive: function () {
+        return this.gerarNomeArquivoExcelBolao();
+    },
+
+    converterWorkbookParaBlob: function (workbook) {
+        var arrayBuffer = XLSX.write(workbook, {
+            bookType: 'xlsx',
+            type: 'array'
+        });
+
+        return new Blob([arrayBuffer], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+    },
+
+    gerarNomeArquivoExcelBolao: function () {
         var nome = this.state.participante && this.state.participante.nome
             ? this.state.participante.nome
             : 'participante';
@@ -2516,26 +2533,33 @@
         return 'Bolao_Copa_2026_' + nomeSanitizado + '_' + timestamp + '.xlsx';
     },
 
-    montarWorkbookDrive: function () {
+    montarWorkbookBolao: function (documentId) {
         if (typeof XLSX === 'undefined') {
             return null;
         }
 
         var registro = this.montarRegistroFinalGED();
         var workbook = XLSX.utils.book_new();
+        var dataEnvio = registro.dataEnvio || new Date().toISOString();
+        var participante = registro.participante || {};
+        var metas = {
+            serverURL: registro.metadadosFluig ? registro.metadadosFluig.serverURL : '',
+            userCode: registro.metadadosFluig ? registro.metadadosFluig.userCode : '',
+            userLogin: registro.metadadosFluig ? registro.metadadosFluig.userLogin : '',
+            widget: registro.metadadosFluig ? registro.metadadosFluig.widget : 'bolao_copa_2026',
+            documentId: documentId || ''
+        };
 
         var wsResumo = XLSX.utils.aoa_to_sheet([
             ['Campo', 'Valor'],
             ['Tipo de registro', registro.tipoRegistro],
             ['Versão', registro.versaoRegistro],
-            ['Data de envio', registro.dataEnvio],
-            ['Participante', registro.participante.nome],
-            ['E-mail', registro.participante.email],
-            ['Telefone', registro.participante.telefone],
+            ['Data de envio', dataEnvio],
+            ['Nome', participante.nome || ''],
+            ['E-mail', participante.email || ''],
+            ['Telefone', participante.telefone || ''],
             ['Campeão previsto', registro.campeao ? registro.campeao.vencedorLabel : 'Não definido'],
-            ['Total de jogos', registro.totais.totalJogos],
-            ['Total de grupos', registro.totais.totalGrupos],
-            ['Total de seleções', registro.totais.totalSelecoes]
+            ['Total de jogos', registro.totais ? registro.totais.totalJogos : 0]
         ]);
         XLSX.utils.book_append_sheet(workbook, wsResumo, 'Resumo');
 
@@ -2590,18 +2614,53 @@
 
         XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(classificacaoRows), 'Classificacao');
 
+        var metadadosRows = [[
+            'Campo', 'Valor'
+        ]];
+
+        for (var chave in metas) {
+            if (!metas.hasOwnProperty(chave)) {
+                continue;
+            }
+
+            metadadosRows.push([chave, metas[chave]]);
+        }
+
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(metadadosRows), 'Metadados');
+
         return workbook;
     },
 
-    converterWorkbookParaBlob: function (workbook) {
-        var arrayBuffer = XLSX.write(workbook, {
-            bookType: 'xlsx',
-            type: 'array'
-        });
+    montarWorkbookDrive: function () {
+        return this.montarWorkbookBolao();
+    },
 
-        return new Blob([arrayBuffer], {
-            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    uploadArquivoBolaoParaGED: function (fileBlob, fileName, callback) {
+        var that = this;
+        var baseUrl = this.authConfig.url || (typeof WCMAPI !== 'undefined' ? WCMAPI.getServerURL() : '');
+
+        var endpointUpload = baseUrl + '/api/public/2.0/contentfiles/upload/?fileName=' + encodeURIComponent(fileName);
+
+        $.ajax({
+            url: endpointUpload,
+            type: 'POST',
+            data: fileBlob,
+            processData: false,
+            contentType: 'application/octet-stream',
+            headers: that.getOAuthData(endpointUpload, 'POST'),
+            crossDomain: true,
+            success: function () {
+                that.criarDocumentoGED(fileName, callback);
+            },
+            error: function (xhr) {
+                console.error('Erro ao enviar o arquivo:', xhr.responseText || xhr);
+                callback(false, null, '', xhr);
+            }
         });
+    },
+
+    publicarExcelBolaoNoFluig: function (fileBlob, fileName, callback) {
+        this.uploadArquivoBolaoParaGED(fileBlob, fileName, callback);
     },
 
     inicializarGoogleDriveTokenClient: function () {
@@ -2750,25 +2809,290 @@
     },
 
     uploadPlanilhaDriveDataset: function (fileBlob, fileName, callback) {
-        var that = this;
-
-        this.obterAccessTokenGoogleDrive(function (erroToken, accessToken) {
-            if (erroToken || !accessToken) {
-                callback(false, null, '', erroToken || new Error('Autenticação pendente.'));
-                return;
-            }
-
-            that.uploadPlanilhaGoogleDrive(fileBlob, fileName, accessToken, function (sucesso, fileId, linkDocumento, response) {
-                callback(sucesso, fileId, linkDocumento, response);
-            });
-        });
+        this.publicarExcelBolaoNoFluig(fileBlob, fileName, callback);
     },
 
     salvarResultadoDrive: function () {
-        return this.salvarRegistroGED();
+        return this.salvarResultadoExcelFluig();
     },
 
     salvarRegistroGED: function () {
+        return this.salvarResultadoExcelFluig();
+    },
+
+    obterPayloadEmailBolao: function (linkDocumento, documentId, fileName) {
+        return {
+            destinatario: this.authConfig.emailResponsavelBolao || '',
+            nomeParticipante: this.state.participante.nome || '',
+            emailParticipante: this.state.participante.email || '',
+            telefoneParticipante: this.state.participante.telefone || '',
+            campeaoPrevisto: this.state.campeao && this.state.campeao.vencedorLabel
+                ? this.state.campeao.vencedorLabel
+                : '',
+            linkDocumento: linkDocumento || '',
+            documentId: documentId || '',
+            fileName: fileName || '',
+            dataEnvio: new Date().toISOString()
+        };
+    },
+
+    enviarEmailResponsavelBolao: function (linkDocumento, documentId, fileName, callback) {
+        var datasetNames = [
+            'DS_BOLAO_COPA_2026_ENVIO_EMAIL',
+            'ds_bolao_copa_envio_email'
+        ];
+        var payload = this.obterPayloadEmailBolao(linkDocumento, documentId, fileName);
+
+        if (!this.authConfig || !this.authConfig.emailResponsavelBolao || this.authConfig.emailResponsavelBolao === 'CONFIGURAR_EMAIL_RESPONSAVEL') {
+            callback(false, {
+                message: 'Configuração de e-mail pendente.'
+            });
+            return;
+        }
+
+        if (typeof DatasetFactory === 'undefined' || typeof DatasetFactory.getDataset !== 'function') {
+            this.enviarEmailResponsavelBolaoViaAjax(datasetNames, payload, callback);
+            return;
+        }
+
+        try {
+            var constraints = [];
+
+            if (typeof DatasetFactory.createConstraint === 'function') {
+                constraints.push(DatasetFactory.createConstraint('payload', JSON.stringify(payload), JSON.stringify(payload), 1));
+                constraints.push(DatasetFactory.createConstraint('destinatario', payload.destinatario, payload.destinatario, 1));
+                constraints.push(DatasetFactory.createConstraint('nomeParticipante', payload.nomeParticipante, payload.nomeParticipante, 1));
+                constraints.push(DatasetFactory.createConstraint('emailParticipante', payload.emailParticipante, payload.emailParticipante, 1));
+                constraints.push(DatasetFactory.createConstraint('telefoneParticipante', payload.telefoneParticipante, payload.telefoneParticipante, 1));
+                constraints.push(DatasetFactory.createConstraint('campeaoPrevisto', payload.campeaoPrevisto, payload.campeaoPrevisto, 1));
+                constraints.push(DatasetFactory.createConstraint('linkDocumento', payload.linkDocumento, payload.linkDocumento, 1));
+                constraints.push(DatasetFactory.createConstraint('documentId', payload.documentId, payload.documentId, 1));
+                constraints.push(DatasetFactory.createConstraint('fileName', payload.fileName, payload.fileName, 1));
+                constraints.push(DatasetFactory.createConstraint('dataEnvio', payload.dataEnvio, payload.dataEnvio, 1));
+                constraints.push(DatasetFactory.createConstraint('emailContato', payload.destinatario, payload.destinatario, 1));
+                constraints.push(DatasetFactory.createConstraint('nomeContato', payload.nomeParticipante, payload.nomeParticipante, 1));
+                constraints.push(DatasetFactory.createConstraint('empresa', payload.emailParticipante, payload.emailParticipante, 1));
+                constraints.push(DatasetFactory.createConstraint('scoreFinal', payload.documentId, payload.documentId, 1));
+                constraints.push(DatasetFactory.createConstraint('maturidade', payload.campeaoPrevisto, payload.campeaoPrevisto, 1));
+                constraints.push(DatasetFactory.createConstraint('linkPdfPublico', payload.linkDocumento, payload.linkDocumento, 1));
+            }
+
+            var primeiroRegistro = null;
+            var ultimoErro = null;
+
+            for (var i = 0; i < datasetNames.length; i++) {
+                try {
+                    var dataset = DatasetFactory.getDataset(datasetNames[i], null, constraints, null);
+
+                    if (dataset && dataset.values && dataset.values.length) {
+                        primeiroRegistro = dataset.values[0];
+                    } else if (dataset && dataset.length && dataset.length > 0) {
+                        primeiroRegistro = dataset[0];
+                    }
+
+                    if (primeiroRegistro) {
+                        break;
+                    }
+                } catch (erroDataset) {
+                    ultimoErro = erroDataset;
+                }
+            }
+
+            if (!primeiroRegistro) {
+                callback(false, {
+                    message: ultimoErro && ultimoErro.message
+                        ? ultimoErro.message
+                        : 'Dataset de e-mail não retornou resposta.'
+                });
+                return;
+            }
+
+            var sucesso = String(primeiroRegistro.success || primeiroRegistro.SUCESSO || primeiroRegistro.sucesso || '').toLowerCase();
+            var envioOk = sucesso === 'true' || sucesso === '1' || sucesso === 'sim';
+            var mensagem = primeiroRegistro.message || primeiroRegistro.MENSAGEM || primeiroRegistro.mensagem || '';
+
+            console.log('Retorno dataset e-mail bolão:', primeiroRegistro);
+
+            callback(envioOk, primeiroRegistro, mensagem);
+        } catch (e) {
+            this.enviarEmailResponsavelBolaoViaAjax(datasetNames, payload, callback);
+        }
+    },
+
+    enviarEmailResponsavelBolaoViaAjax: function (datasetNames, payload, callback) {
+        var that = this;
+        var baseUrl = this.authConfig.url || (typeof WCMAPI !== 'undefined' ? WCMAPI.getServerURL() : '');
+        var endpoint = baseUrl + '/api/public/ecm/dataset/datasets';
+        var requestBody = {
+            name: datasetNames[0],
+            fields: [
+                'success',
+                'message',
+                'recipient',
+                'subject',
+                'sentAt',
+                'debugPayload'
+            ],
+            constraints: [
+                {
+                    _field: 'payload',
+                    _initialValue: JSON.stringify(payload),
+                    _finalValue: JSON.stringify(payload),
+                    _type: 1,
+                    _likeSearch: false
+                },
+                {
+                    _field: 'destinatario',
+                    _initialValue: payload.destinatario,
+                    _finalValue: payload.destinatario,
+                    _type: 1,
+                    _likeSearch: false
+                },
+                {
+                    _field: 'nomeParticipante',
+                    _initialValue: payload.nomeParticipante,
+                    _finalValue: payload.nomeParticipante,
+                    _type: 1,
+                    _likeSearch: false
+                },
+                {
+                    _field: 'emailParticipante',
+                    _initialValue: payload.emailParticipante,
+                    _finalValue: payload.emailParticipante,
+                    _type: 1,
+                    _likeSearch: false
+                },
+                {
+                    _field: 'telefoneParticipante',
+                    _initialValue: payload.telefoneParticipante,
+                    _finalValue: payload.telefoneParticipante,
+                    _type: 1,
+                    _likeSearch: false
+                },
+                {
+                    _field: 'campeaoPrevisto',
+                    _initialValue: payload.campeaoPrevisto,
+                    _finalValue: payload.campeaoPrevisto,
+                    _type: 1,
+                    _likeSearch: false
+                },
+                {
+                    _field: 'linkDocumento',
+                    _initialValue: payload.linkDocumento,
+                    _finalValue: payload.linkDocumento,
+                    _type: 1,
+                    _likeSearch: false
+                },
+                {
+                    _field: 'documentId',
+                    _initialValue: payload.documentId,
+                    _finalValue: payload.documentId,
+                    _type: 1,
+                    _likeSearch: false
+                },
+                {
+                    _field: 'fileName',
+                    _initialValue: payload.fileName,
+                    _finalValue: payload.fileName,
+                    _type: 1,
+                    _likeSearch: false
+                },
+                {
+                    _field: 'dataEnvio',
+                    _initialValue: payload.dataEnvio,
+                    _finalValue: payload.dataEnvio,
+                    _type: 1,
+                    _likeSearch: false
+                },
+                {
+                    _field: 'emailContato',
+                    _initialValue: payload.destinatario,
+                    _finalValue: payload.destinatario,
+                    _type: 1,
+                    _likeSearch: false
+                },
+                {
+                    _field: 'nomeContato',
+                    _initialValue: payload.nomeParticipante,
+                    _finalValue: payload.nomeParticipante,
+                    _type: 1,
+                    _likeSearch: false
+                },
+                {
+                    _field: 'empresa',
+                    _initialValue: payload.emailParticipante,
+                    _finalValue: payload.emailParticipante,
+                    _type: 1,
+                    _likeSearch: false
+                },
+                {
+                    _field: 'scoreFinal',
+                    _initialValue: payload.documentId,
+                    _finalValue: payload.documentId,
+                    _type: 1,
+                    _likeSearch: false
+                },
+                {
+                    _field: 'maturidade',
+                    _initialValue: payload.campeaoPrevisto,
+                    _finalValue: payload.campeaoPrevisto,
+                    _type: 1,
+                    _likeSearch: false
+                },
+                {
+                    _field: 'linkPdfPublico',
+                    _initialValue: payload.linkDocumento,
+                    _finalValue: payload.linkDocumento,
+                    _type: 1,
+                    _likeSearch: false
+                }
+            ],
+            order: []
+        };
+
+        $.ajax({
+            url: endpoint,
+            type: 'POST',
+            data: JSON.stringify(requestBody),
+            contentType: 'application/json',
+            headers: that.getOAuthData(endpoint, 'POST'),
+            crossDomain: true,
+            success: function (response) {
+                var dataset = response && response.content ? response.content : response;
+                var primeiroRegistro = null;
+
+                if (dataset && dataset.values && dataset.values.length) {
+                    primeiroRegistro = dataset.values[0];
+                } else if (dataset && dataset.rows && dataset.rows.length) {
+                    primeiroRegistro = dataset.rows[0];
+                } else if (dataset && dataset.data && dataset.data.length) {
+                    primeiroRegistro = dataset.data[0];
+                }
+
+                if (!primeiroRegistro) {
+                    callback(false, {
+                        message: 'Dataset de e-mail não retornou resposta.'
+                    });
+                    return;
+                }
+
+                var sucesso = String(primeiroRegistro.success || primeiroRegistro.SUCESSO || primeiroRegistro.sucesso || '').toLowerCase();
+                var envioOk = sucesso === 'true' || sucesso === '1' || sucesso === 'sim';
+                var mensagem = primeiroRegistro.message || primeiroRegistro.MENSAGEM || primeiroRegistro.mensagem || '';
+
+                console.log('Retorno dataset e-mail bolão:', primeiroRegistro);
+
+                callback(envioOk, primeiroRegistro, mensagem);
+            },
+            error: function (xhr) {
+                callback(false, {
+                    message: xhr && xhr.responseText ? xhr.responseText : 'Falha ao consultar dataset de e-mail.'
+                });
+            }
+        });
+    },
+
+    salvarResultadoExcelFluig: function () {
         var that = this;
 
         if (!this.authConfig || !this.authConfig.gedFolderId || parseInt(this.authConfig.gedFolderId, 10) <= 0) {
@@ -2779,6 +3103,15 @@
             );
 
             console.log('Registro preparado:', this.montarRegistroFinalGED());
+            return;
+        }
+
+        if (typeof XLSX === 'undefined') {
+            this.exibirMensagem(
+                'warning',
+                'Planilha indisponível',
+                'A biblioteca necessária para gerar a planilha ainda não foi carregada.'
+            );
             return;
         }
 
@@ -2804,14 +3137,30 @@
         }
 
         var registro = this.montarRegistroFinalGED();
-        var fileName = this.gerarNomeArquivoGED();
+        var fileName = this.gerarNomeArquivoExcelBolao();
+        var workbook = this.montarWorkbookBolao();
+        var fileBlob = workbook ? this.converterWorkbookParaBlob(workbook) : null;
 
-        this.uploadJsonBolaoParaGED(registro, fileName, function (sucesso, documentId, linkDocumento, response) {
+        if (!fileBlob) {
             if (loading) {
                 loading.hide();
             }
 
+            this.exibirMensagem(
+                'danger',
+                'Erro ao gerar planilha',
+                'Não foi possível preparar a planilha do bolão agora.'
+            );
+
+            return;
+        }
+
+        this.publicarExcelBolaoNoFluig(fileBlob, fileName, function (sucesso, documentId, linkDocumento, response) {
             if (!sucesso) {
+                if (loading) {
+                    loading.hide();
+                }
+
                 that.exibirMensagem(
                     'danger',
                     'Erro ao salvar',
@@ -2826,16 +3175,32 @@
                 documentId: documentId,
                 link: linkDocumento,
                 fileName: fileName,
-                dataSalvamento: new Date().toISOString()
+                dataSalvamento: new Date().toISOString(),
+                tipoArquivo: 'xlsx'
             };
 
-            that.exibirMensagem(
-                'success',
-                'Bolão salvo',
-                'O resultado foi salvo com sucesso.'
-            );
+            that.enviarEmailResponsavelBolao(linkDocumento, documentId, fileName, function (emailOk, emailResponse) {
+                if (loading) {
+                    loading.hide();
+                }
 
-            that.renderizarEtapa();
+                if (!emailOk) {
+                    that.exibirMensagem(
+                        'warning',
+                        'Bolão salvo',
+                        'O bolão foi salvo, mas não foi possível enviar o e-mail automaticamente.'
+                    );
+                    console.warn('Falha ao enviar e-mail do bolão:', emailResponse);
+                } else {
+                    that.exibirMensagem(
+                        'success',
+                        'Bolão salvo',
+                        'O resultado foi salvo com sucesso e a solicitação de e-mail foi enviada ao Fluig.'
+                    );
+                }
+
+                that.renderizarEtapa();
+            });
         });
     },
 

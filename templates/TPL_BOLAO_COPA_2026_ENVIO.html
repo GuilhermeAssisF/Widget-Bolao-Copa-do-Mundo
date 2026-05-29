@@ -1,0 +1,68 @@
+<!--
+Template Fluig: TPL_BOLAO_COPA_2026_ENVIO
+Assunto sugerido: ${subject}
+Parametros enviados pelo dataset:
+nomeContato, empresa, scoreFinal, maturidade, dataAtual, htmlInsights,
+linkPdfPublico, nomeParticipante, emailParticipante, telefoneParticipante,
+campeaoPrevisto, linkDocumento, documentId, fileName, dataEnvio
+-->
+<div style="font-family: Arial, Helvetica, sans-serif; color: #1f2937; max-width: 680px; margin: 0 auto;">
+    <div style="background: #0f172a; color: #ffffff; padding: 22px 26px; border-radius: 10px 10px 0 0;">
+        <h1 style="font-size: 22px; line-height: 1.25; margin: 0;">Bolao Copa 2026</h1>
+        <p style="font-size: 14px; line-height: 1.5; margin: 8px 0 0 0;">Um novo resultado foi publicado no Fluig.</p>
+    </div>
+
+    <div style="border: 1px solid #e5e7eb; border-top: 0; padding: 24px 26px; border-radius: 0 0 10px 10px;">
+        <table cellpadding="0" cellspacing="0" style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <tr>
+                <td style="padding: 8px 12px 8px 0; font-weight: bold; width: 180px;">Participante</td>
+                <td style="padding: 8px 0;">${nomeContato}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 12px 8px 0; font-weight: bold;">E-mail</td>
+                <td style="padding: 8px 0;">${empresa}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 12px 8px 0; font-weight: bold;">Telefone</td>
+                <td style="padding: 8px 0;">${telefoneParticipante}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 12px 8px 0; font-weight: bold;">Campeao previsto</td>
+                <td style="padding: 8px 0;">${maturidade}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 12px 8px 0; font-weight: bold;">Arquivo</td>
+                <td style="padding: 8px 0;">${fileName}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 12px 8px 0; font-weight: bold;">Documento GED</td>
+                <td style="padding: 8px 0;">${scoreFinal}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 12px 8px 0; font-weight: bold;">Link da planilha</td>
+                <td style="padding: 8px 0;">
+                    <a href="${linkPdfPublico}" style="color: #1238ff; word-break: break-all;">${linkPdfPublico}</a>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 12px 8px 0; font-weight: bold;">Data de envio</td>
+                <td style="padding: 8px 0;">${dataAtual}</td>
+            </tr>
+        </table>
+
+        <div style="margin-top: 24px;">
+            <a href="${linkPdfPublico}" style="display: inline-block; background: #1238ff; color: #ffffff; text-decoration: none; padding: 12px 18px; border-radius: 8px; font-weight: bold;">
+                Baixar planilha do bolao
+            </a>
+        </div>
+
+        <p style="font-size: 12px; color: #6b7280; line-height: 1.5; margin: 22px 0 0 0;">
+            Caso o botao nao abra, acesse o link diretamente: ${linkPdfPublico}
+        </p>
+
+        <p style="font-size: 12px; color: #6b7280; line-height: 1.5; margin: 8px 0 0 0; word-break: break-all;">
+            Link alternativo: ${linkPlanilha}
+        </p>
+
+    </div>
+</div>
