@@ -60,9 +60,70 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
                     return instancia.gerarMockDadosTeste(opcoes);
                 };
             }
+
+            if (typeof window.bolaoCopa2026Mocks !== 'object') {
+                window.bolaoCopa2026Mocks = {
+                    geral: function (opcoes) {
+                        return window.bolaoCopa2026Mock(opcoes);
+                    },
+                    grupos: function (opcoes) {
+                        opcoes = opcoes || {};
+                        opcoes.etapa = 'grupos';
+                        return window.bolaoCopa2026Mock(opcoes);
+                    },
+                    rodada1: function (opcoes) {
+                        opcoes = opcoes || {};
+                        opcoes.etapa = 'grupos';
+                        opcoes.rodada = 1;
+                        return window.bolaoCopa2026Mock(opcoes);
+                    },
+                    rodada2: function (opcoes) {
+                        opcoes = opcoes || {};
+                        opcoes.etapa = 'grupos';
+                        opcoes.rodada = 2;
+                        return window.bolaoCopa2026Mock(opcoes);
+                    },
+                    rodada3: function (opcoes) {
+                        opcoes = opcoes || {};
+                        opcoes.etapa = 'grupos';
+                        opcoes.rodada = 3;
+                        return window.bolaoCopa2026Mock(opcoes);
+                    },
+                    mataMata: function (opcoes) {
+                        opcoes = opcoes || {};
+                        opcoes.etapa = 'mata_mata';
+                        return window.bolaoCopa2026Mock(opcoes);
+                    },
+                    fase: function (faseId, opcoes) {
+                        opcoes = opcoes || {};
+                        opcoes.etapa = 'mata_mata';
+                        opcoes.faseMataMata = faseId;
+                        return window.bolaoCopa2026Mock(opcoes);
+                    },
+                    round32: function (opcoes) {
+                        return window.bolaoCopa2026Mocks.fase('round_32', opcoes);
+                    },
+                    oitavas: function (opcoes) {
+                        return window.bolaoCopa2026Mocks.fase('round_16', opcoes);
+                    },
+                    quartas: function (opcoes) {
+                        return window.bolaoCopa2026Mocks.fase('quarter_finals', opcoes);
+                    },
+                    semis: function (opcoes) {
+                        return window.bolaoCopa2026Mocks.fase('semi_finals', opcoes);
+                    },
+                    terceiroLugar: function (opcoes) {
+                        return window.bolaoCopa2026Mocks.fase('third_place', opcoes);
+                    },
+                    final: function (opcoes) {
+                        return window.bolaoCopa2026Mocks.fase('final', opcoes);
+                    }
+                };
+            }
         }
 
         this.inicializarDadosCopa();
+        this.carregarEstadoLocalStorage();
         this.validarBandeirasConfiguradas();
 
         this.renderizarEtapa();
@@ -124,6 +185,26 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
         return '#' + idBase + '_' + this.instanceId;
     },
 
+    rolarParaTopoDaEtapa: function (seletorAlvo) {
+        if (typeof window === 'undefined' || typeof $ === 'undefined') {
+            return;
+        }
+
+        var $alvo = seletorAlvo ? $(seletorAlvo) : $();
+
+        if (!$alvo.length) {
+            $alvo = $(this.getSeletor('bolaoConteudo'));
+        }
+
+        if (!$alvo.length) {
+            return;
+        }
+
+        var topo = Math.max(0, ($alvo.offset() && $alvo.offset().top ? $alvo.offset().top : 0) - 20);
+
+        $('html, body').stop(true).animate({ scrollTop: topo }, 250);
+    },
+
     registrarEventos: function () {
         var that = this;
 
@@ -144,12 +225,14 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
             .on('input', this.getSeletor('bolaoNome'), function () {
                 that.state.participante.nome = $(this).val();
                 that.atualizarSidebar();
+                that.salvarEstadoLocalStorage();
             });
 
         $(document)
             .off('input', this.getSeletor('bolaoEmail'))
             .on('input', this.getSeletor('bolaoEmail'), function () {
                 that.state.participante.email = $(this).val();
+                that.salvarEstadoLocalStorage();
             });
 
         $(document)
@@ -158,6 +241,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
                 var telefoneFormatado = that.aplicarMascaraTelefone($(this).val());
                 $(this).val(telefoneFormatado);
                 that.state.participante.telefone = telefoneFormatado;
+                that.salvarEstadoLocalStorage();
             });
 
         $(document)
@@ -166,6 +250,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
                 var rodada = parseInt($(this).data('rodada'), 10);
                 that.state.rodadaAtual = rodada;
                 that.renderizarEtapa();
+                that.salvarEstadoLocalStorage();
             });
 
         $(document)
@@ -194,7 +279,105 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
 
                 that.state.faseMataMataAtual = $(this).data('fase');
                 that.renderizarEtapa();
+                that.salvarEstadoLocalStorage();
             });
+    },
+
+    obterChaveLocalStorage: function () {
+        if (typeof window === 'undefined' || !window.localStorage) {
+            return null;
+        }
+
+        return 'bolao_copa_2026_state_' + (this.instanceId || 'default');
+    },
+
+    salvarEstadoLocalStorage: function () {
+        var chave = this.obterChaveLocalStorage();
+
+        if (!chave) {
+            return;
+        }
+
+        try {
+            var snapshot = {
+                versao: 1,
+                salvoEm: new Date().toISOString(),
+                etapaAtual: this.state.etapaAtual,
+                rodadaAtual: this.state.rodadaAtual,
+                faseMataMataAtual: this.state.faseMataMataAtual,
+                participante: {
+                    nome: this.state.participante.nome || '',
+                    email: this.state.participante.email || '',
+                    telefone: this.state.participante.telefone || ''
+                },
+                palpites: this.state.palpites || {}
+            };
+
+            window.localStorage.setItem(chave, JSON.stringify(snapshot));
+        } catch (erro) {
+            console.warn('Não foi possível salvar o estado localmente.', erro);
+        }
+    },
+
+    carregarEstadoLocalStorage: function () {
+        var chave = this.obterChaveLocalStorage();
+
+        if (!chave) {
+            return;
+        }
+
+        try {
+            var raw = window.localStorage.getItem(chave);
+
+            if (!raw) {
+                return;
+            }
+
+            var snapshot = JSON.parse(raw);
+
+            if (!snapshot || !snapshot.palpites) {
+                return;
+            }
+
+            if (snapshot.participante) {
+                this.state.participante.nome = snapshot.participante.nome || '';
+                this.state.participante.email = snapshot.participante.email || '';
+                this.state.participante.telefone = snapshot.participante.telefone || '';
+            }
+
+            if (snapshot.etapaAtual) {
+                this.state.etapaAtual = snapshot.etapaAtual;
+            }
+
+            if (snapshot.rodadaAtual) {
+                this.state.rodadaAtual = snapshot.rodadaAtual;
+            }
+
+            if (snapshot.faseMataMataAtual) {
+                this.state.faseMataMataAtual = snapshot.faseMataMataAtual;
+            }
+
+            for (var matchId in snapshot.palpites) {
+                if (!snapshot.palpites.hasOwnProperty(matchId)) {
+                    continue;
+                }
+
+                if (!this.state.palpites[matchId]) {
+                    continue;
+                }
+
+                var salvo = snapshot.palpites[matchId];
+                this.state.palpites[matchId].placarA = salvo.placarA !== undefined ? salvo.placarA : this.state.palpites[matchId].placarA;
+                this.state.palpites[matchId].placarB = salvo.placarB !== undefined ? salvo.placarB : this.state.palpites[matchId].placarB;
+                this.state.palpites[matchId].vencedor = salvo.vencedor !== undefined ? salvo.vencedor : this.state.palpites[matchId].vencedor;
+            }
+
+            this.calcularTodasClassificacoes();
+            this.prepararMataMataFases();
+            this.definirCampeaoFinal();
+        } catch (erro) {
+            console.warn('Não foi possível restaurar o estado salvo localmente.', erro);
+        }
     },
 
     renderizarFaseGrupos: function () {
@@ -356,9 +539,10 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
         this.atualizarSidebar();
         this.atualizarCardJogoCompleto(matchId);
         this.atualizarTabelasDaTela();
+        this.salvarEstadoLocalStorage();
 
         if (this.state.etapaAtual === 'mata_mata') {
-            this.renderizarEtapa();
+            this.atualizarCardJogoMataMata(matchId);
         }
     },
 
@@ -405,6 +589,29 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
         } else {
             $card.removeClass('completed');
         }
+    },
+
+    atualizarCardJogoMataMata: function (matchId) {
+        var palpite = this.state.palpites[matchId];
+        var jogo = null;
+        var $card = $('.bolao-knockout-card[data-match-id="' + matchId + '"]');
+
+        if (!palpite || !$card.length) {
+            return;
+        }
+
+        for (var i = 0; i < this.state.jogos.length; i++) {
+            if (this.state.jogos[i].id === matchId) {
+                jogo = this.state.jogos[i];
+                break;
+            }
+        }
+
+        if (!jogo) {
+            return;
+        }
+
+        $card.replaceWith(this.renderizarJogoMataMata(jogo));
     },
 
     atualizarTabelasDaTela: function () {
@@ -653,7 +860,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
                 this.exibirMensagem(
                     'warning',
                     'Fase de grupos incompleta',
-                    'Preencha todos os placares da fase de grupos antes de avançar. Jogo pendente: ' + jogo.id
+                    'Preencha todos os placares da fase de grupos antes de avançar.'
                 );
 
                 this.state.rodadaAtual = jogo.rodada || 1;
@@ -998,6 +1205,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
         if (this.state.etapaAtual === 'grupos') {
             this.state.etapaAtual = 'dados';
             this.renderizarEtapa();
+            this.salvarEstadoLocalStorage();
             return;
         }
 
@@ -1007,11 +1215,13 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
             if (faseAnterior) {
                 this.state.faseMataMataAtual = faseAnterior.id;
                 this.renderizarEtapa();
+                this.salvarEstadoLocalStorage();
                 return;
             }
 
             this.state.etapaAtual = 'grupos';
             this.renderizarEtapa();
+            this.salvarEstadoLocalStorage();
             return;
         }
 
@@ -1025,6 +1235,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
             }
 
             this.renderizarEtapa();
+            this.salvarEstadoLocalStorage();
         }
     },
 
@@ -1664,7 +1875,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
                 this.exibirMensagem(
                     'warning',
                     'Mata-mata incompleto',
-                    'Preencha o placar do jogo ' + jogo.id + ' antes de continuar.'
+                    'Preencha o placar do jogo antes de continuar.'
                 );
 
                 return false;
@@ -1674,7 +1885,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
                 this.exibirMensagem(
                     'warning',
                     'Escolha o classificado',
-                    'O jogo ' + jogo.id + ' está empatado. Escolha qual lado avança.'
+                    'O jogo está empatado. Escolha qual lado avança.'
                 );
 
                 return false;
@@ -1695,15 +1906,15 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
         html += '   <h3>Bolão preenchido com sucesso</h3>';
         html += '   <p>Participante: <strong>' + this.escaparHtml(this.state.participante.nome) + '</strong></p>';
         html += '   <p>Campeão previsto: <strong>' + this.escaparHtml(campeao) + '</strong></p>';
-        html += '   <p>Todos os palpites foram registrados em memória. No próximo passo vamos gerar o JSON para gravação no GED do Fluig.</p>';
+        html += '   <p>Todos os palpites foram registrados em memória. No próximo passo vamos preparar o envio final.</p>';
 
         if (this.state.documentoGED && this.state.documentoGED.documentId) {
             html += '<div class="bolao-ged-success">';
-            html += '   <strong>Registro salvo no GED</strong>';
-            html += '   <p>Documento: ' + this.escaparHtml(this.state.documentoGED.documentId) + '</p>';
+            html += '   <strong>Registro salvo</strong>';
+            html += '   <p>Seu resultado foi salvo com sucesso.</p>';
 
             if (this.state.documentoGED.link) {
-                html += '   <a href="' + this.escaparHtml(this.state.documentoGED.link) + '" target="_blank" class="btn btn-primary bolao-btn-primary">Abrir documento</a>';
+                html += '   <a href="' + this.escaparHtml(this.state.documentoGED.link) + '" target="_blank" class="btn btn-primary bolao-btn-primary">Abrir registro</a>';
             }
 
             html += '</div>';
@@ -1783,6 +1994,13 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
             return Math.floor(Math.random() * (max + 1));
         };
 
+        var rodadaDesejada = opcoes.rodada !== undefined && opcoes.rodada !== null
+            ? parseInt(opcoes.rodada, 10)
+            : null;
+        var faseDesejada = opcoes.faseMataMata ? this.normalizarFaseMataMata(opcoes.faseMataMata) : null;
+        var modoGrupos = rodadaDesejada !== null || opcoes.etapa === 'grupos';
+        var modoMataMata = faseDesejada !== null || opcoes.etapa === 'mata_mata';
+
         this.state.participante = {
             nome: pickRandom(nomes),
             email: pickRandom(emails),
@@ -1819,6 +2037,14 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
             palpite.timeB = jogo.timeB;
 
             if (jogo.fase === 'grupos') {
+                if (rodadaDesejada && parseInt(jogo.rodada, 10) !== rodadaDesejada) {
+                    palpite.placarA = null;
+                    palpite.placarB = null;
+                    palpite.vencedor = null;
+                    this.state.palpites[jogo.id] = palpite;
+                    continue;
+                }
+
                 palpite.placarA = randomScore(5);
                 palpite.placarB = randomScore(5);
 
@@ -1830,6 +2056,22 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
                     palpite.vencedor = 'empate';
                 }
             } else {
+                if (modoGrupos) {
+                    palpite.placarA = null;
+                    palpite.placarB = null;
+                    palpite.vencedor = null;
+                    this.state.palpites[jogo.id] = palpite;
+                    continue;
+                }
+
+                if (faseDesejada && this.normalizarFaseMataMata(jogo.fase) !== faseDesejada) {
+                    palpite.placarA = null;
+                    palpite.placarB = null;
+                    palpite.vencedor = null;
+                    this.state.palpites[jogo.id] = palpite;
+                    continue;
+                }
+
                 var placarA = randomScore(4);
                 var placarB = randomScore(4);
 
@@ -1850,41 +2092,60 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
 
         var fases = this.state.fasesMataMataDisponiveis || [];
 
-        for (var f = 0; f < fases.length; f++) {
-            var faseId = fases[f].id;
-            var jogosFase = this.state.mataMataResolvido[faseId] || [];
+        if (!modoGrupos) {
+            for (var f = 0; f < fases.length; f++) {
+                var faseId = fases[f].id;
+                var jogosFase = this.state.mataMataResolvido[faseId] || [];
 
-            for (var j = 0; j < jogosFase.length; j++) {
-                var jogoFase = jogosFase[j];
-                var palpiteFase = this.state.palpites[jogoFase.id];
-
-                if (!palpiteFase) {
+                if (faseDesejada && faseId !== faseDesejada) {
                     continue;
                 }
 
-                var placarAfase = randomScore(4);
-                var placarBfase = randomScore(4);
+                for (var j = 0; j < jogosFase.length; j++) {
+                    var jogoFase = jogosFase[j];
+                    var palpiteFase = this.state.palpites[jogoFase.id];
 
-                if (placarAfase === placarBfase) {
-                    placarBfase = placarBfase === 4 ? 3 : placarBfase + 1;
+                    if (!palpiteFase) {
+                        continue;
+                    }
+
+                    var placarAfase = randomScore(4);
+                    var placarBfase = randomScore(4);
+
+                    if (placarAfase === placarBfase) {
+                        placarBfase = placarBfase === 4 ? 3 : placarBfase + 1;
+                    }
+
+                    palpiteFase.placarA = placarAfase;
+                    palpiteFase.placarB = placarBfase;
+                    palpiteFase.vencedor = placarAfase > placarBfase ? palpiteFase.timeA : palpiteFase.timeB;
                 }
-
-                palpiteFase.placarA = placarAfase;
-                palpiteFase.placarB = placarBfase;
-                palpiteFase.vencedor = placarAfase > placarBfase ? palpiteFase.timeA : palpiteFase.timeB;
             }
         }
 
         this.definirCampeaoFinal();
-        this.state.etapaAtual = opcoes.irParaResultado === false ? 'mata_mata' : 'resultado';
+        if (opcoes.irParaResultado === false) {
+            this.state.etapaAtual = modoGrupos ? 'grupos' : 'mata_mata';
+        } else if (modoGrupos) {
+            this.state.etapaAtual = 'grupos';
+        } else if (modoMataMata) {
+            this.state.etapaAtual = 'mata_mata';
+        } else {
+            this.state.etapaAtual = 'resultado';
+        }
+
+        if (this.state.etapaAtual === 'grupos') {
+            this.state.rodadaAtual = rodadaDesejada || 1;
+        }
 
         if (this.state.etapaAtual === 'mata_mata') {
-            this.state.faseMataMataAtual = this.state.fasesMataMataDisponiveis.length
+            this.state.faseMataMataAtual = faseDesejada || (this.state.fasesMataMataDisponiveis.length
                 ? this.state.fasesMataMataDisponiveis[0].id
-                : 'round_32';
+                : 'round_32');
         }
 
         this.renderizarEtapa();
+        this.salvarEstadoLocalStorage();
 
         return {
             participante: this.state.participante,
@@ -2049,7 +2310,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
                 that.criarDocumentoGED(fileName, callback);
             },
             error: function (xhr) {
-                console.error('Erro ao fazer upload do JSON para o GED:', xhr.responseText || xhr);
+                console.error('Erro ao enviar o registro:', xhr.responseText || xhr);
                 callback(false, null, '', xhr);
             }
         });
@@ -2110,7 +2371,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
                 });
             },
             error: function (xhr) {
-                console.error('Erro ao criar documento no GED:', xhr.responseText || xhr);
+                console.error('Erro ao criar o registro:', xhr.responseText || xhr);
                 callback(false, null, '', xhr);
             }
         });
@@ -2146,22 +2407,22 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
         if (!this.authConfig || !this.authConfig.gedFolderId || parseInt(this.authConfig.gedFolderId, 10) <= 0) {
             this.exibirMensagem(
                 'warning',
-                'GED não configurado',
-                'Configure o ID da pasta GED em authConfig.gedFolderId antes de salvar.'
+                'Configuração pendente',
+                'Algumas informações necessárias para salvar ainda não foram configuradas.'
             );
 
-            console.log('JSON que seria salvo no GED:', this.montarRegistroFinalGED());
+            console.log('Registro preparado:', this.montarRegistroFinalGED());
             return;
         }
 
         if (!this.oauthConfigurado()) {
             this.exibirMensagem(
                 'warning',
-                'OAuth não configurado',
-                'Configure as credenciais OAuth antes de salvar no GED.'
+                'Configuração pendente',
+                'Algumas informações necessárias para salvar ainda não foram configuradas.'
             );
 
-            console.log('JSON que seria salvo no GED:', this.montarRegistroFinalGED());
+            console.log('Registro preparado:', this.montarRegistroFinalGED());
             return;
         }
 
@@ -2169,7 +2430,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
 
         if (typeof FLUIGC !== 'undefined' && FLUIGC.loading) {
             loading = FLUIGC.loading(window, {
-                textMessage: 'Salvando bolão no GED...',
+                textMessage: 'Salvando bolão...',
                 title: 'Aguarde'
             });
             loading.show();
@@ -2187,10 +2448,10 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
                 that.exibirMensagem(
                     'danger',
                     'Erro ao salvar',
-                    'Não foi possível salvar o bolão no GED. Verifique o console para mais detalhes.'
+                    'Não foi possível salvar o bolão agora. Tente novamente.'
                 );
 
-                console.error('Falha ao salvar registro GED:', response);
+                console.error('Falha ao salvar o registro:', response);
                 return;
             }
 
@@ -2204,7 +2465,7 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
             that.exibirMensagem(
                 'success',
                 'Bolão salvo',
-                'O resultado foi salvo no GED com o documento ' + documentId + '.'
+                'O resultado foi salvo com sucesso.'
             );
 
             that.renderizarEtapa();
@@ -2401,7 +2662,16 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
 
         this.state.palpites[matchId].vencedor = vencedor;
 
+        var scrollAtual = typeof window !== 'undefined' && typeof $ !== 'undefined'
+            ? $(window).scrollTop()
+            : null;
+
         this.renderizarEtapa();
+        this.salvarEstadoLocalStorage();
+
+        if (scrollAtual !== null) {
+            $(window).scrollTop(scrollAtual);
+        }
     },
 
     validarFaseMataMataAtual: function () {
@@ -2475,5 +2745,206 @@ var WidgetBolaoCopa2026 = SuperWidget.extend({
         }
 
         return texto;
+    },
+
+    obterRodadasGruposDisponiveis: function () {
+        var rodadas = [];
+        var mapa = {};
+
+        for (var i = 0; i < this.state.jogos.length; i++) {
+            var jogo = this.state.jogos[i];
+
+            if (jogo.fase !== 'grupos') {
+                continue;
+            }
+
+            var rodada = parseInt(jogo.rodada, 10);
+
+            if (!rodada || mapa[rodada]) {
+                continue;
+            }
+
+            mapa[rodada] = true;
+            rodadas.push(rodada);
+        }
+
+        rodadas.sort(function (a, b) {
+            return a - b;
+        });
+
+        return rodadas;
+    },
+
+    obterProximaRodadaGrupos: function () {
+        var rodadas = this.obterRodadasGruposDisponiveis();
+        var rodadaAtual = parseInt(this.state.rodadaAtual, 10) || 1;
+
+        for (var i = 0; i < rodadas.length; i++) {
+            if (rodadas[i] > rodadaAtual) {
+                return rodadas[i];
+            }
+        }
+
+        return null;
+    },
+
+    validarRodadaGruposCompleta: function (rodada) {
+        var jogosRodada = this.state.jogos.filter(function (jogo) {
+            return jogo.fase === 'grupos' && parseInt(jogo.rodada, 10) === parseInt(rodada, 10);
+        });
+
+        for (var i = 0; i < jogosRodada.length; i++) {
+            var jogo = jogosRodada[i];
+            var palpite = this.state.palpites[jogo.id];
+
+            if (!palpite || palpite.placarA === null || palpite.placarB === null) {
+                this.exibirMensagem(
+                    'warning',
+                    'Rodada incompleta',
+                    'Preencha todos os placares da rodada ' + rodada + ' antes de continuar.'
+                );
+
+                this.state.rodadaAtual = jogo.rodada || rodada || 1;
+                this.renderizarEtapa();
+
+                return false;
+            }
+        }
+
+        return true;
+    },
+
+    atualizarBotoes: function () {
+        var $btnVoltar = $(this.getSeletor('btnBolaoVoltar'));
+        var $btnAvancar = $(this.getSeletor('btnBolaoAvancar'));
+
+        if (this.state.etapaAtual === 'dados') {
+            $btnVoltar.prop('disabled', true);
+            $btnAvancar.text('Avançar');
+            return;
+        }
+
+        if (this.state.etapaAtual === 'grupos') {
+            var proximaRodada = this.obterProximaRodadaGrupos();
+
+            $btnVoltar.prop('disabled', false);
+            $btnAvancar.text(proximaRodada ? 'Próxima rodada' : 'Avançar para mata-mata');
+            return;
+        }
+
+        if (this.state.etapaAtual === 'mata_mata') {
+            $btnVoltar.prop('disabled', false);
+            $btnAvancar.text(this.obterConfigFaseMataMata(this.state.faseMataMataAtual).proximoBotao || 'Avançar');
+            return;
+        }
+
+        if (this.state.etapaAtual === 'resultado') {
+            $btnVoltar.prop('disabled', false);
+            $btnAvancar.text('Enviar Resultado');
+        }
+    },
+
+    avancarEtapa: function () {
+        if (this.state.etapaAtual === 'dados') {
+            if (!this.validarDadosParticipante()) {
+                return;
+            }
+
+            this.state.etapaAtual = 'grupos';
+            this.state.rodadaAtual = 1;
+            this.renderizarEtapa();
+            this.salvarEstadoLocalStorage();
+
+            this.exibirMensagem(
+                'success',
+                'Dados preenchidos',
+                'Agora preencha os placares da fase de grupos.'
+            );
+
+            return;
+        }
+
+        if (this.state.etapaAtual === 'grupos') {
+            var proximaRodada = this.obterProximaRodadaGrupos();
+
+            if (proximaRodada) {
+                if (!this.validarRodadaGruposCompleta(this.state.rodadaAtual || 1)) {
+                    return;
+                }
+
+                this.state.rodadaAtual = proximaRodada;
+                this.renderizarEtapa();
+                this.salvarEstadoLocalStorage();
+                this.rolarParaTopoDaEtapa(this.getSeletor('bolaoConteudo') + ' .bolao-group-card:first');
+
+                this.exibirMensagem(
+                    'success',
+                    'Rodada concluída',
+                    'Agora preencha os jogos da rodada ' + proximaRodada + '.'
+                );
+
+                return;
+            }
+
+            if (!this.validarFaseGruposCompleta()) {
+                return;
+            }
+
+            this.prepararMataMata();
+
+            this.state.etapaAtual = 'mata_mata';
+            this.state.faseMataMataAtual = 'round_32';
+            this.renderizarEtapa();
+            this.salvarEstadoLocalStorage();
+            this.rolarParaTopoDaEtapa(this.getSeletor('bolaoConteudo') + ' .bolao-knockout-section:first');
+
+            this.exibirMensagem(
+                'success',
+                'Mata-mata gerado',
+                'Os confrontos da primeira fase eliminatória foram montados com base na sua classificação.'
+            );
+
+            return;
+        }
+
+        if (this.state.etapaAtual === 'mata_mata') {
+            if (!this.validarFaseMataMataAtual()) {
+                return;
+            }
+
+            var proximaFase = this.obterProximaFaseMataMata();
+
+            if (proximaFase) {
+                this.state.faseMataMataAtual = proximaFase.id;
+                this.renderizarEtapa();
+                this.salvarEstadoLocalStorage();
+                this.rolarParaTopoDaEtapa(this.getSeletor('bolaoConteudo') + ' .bolao-knockout-section:first');
+
+                this.exibirMensagem(
+                    'success',
+                    'Fase concluída',
+                    'Agora preencha os jogos de ' + proximaFase.label + '.'
+                );
+                return;
+            }
+
+            this.definirCampeaoFinal();
+            this.state.etapaAtual = 'resultado';
+            this.renderizarEtapa();
+            this.salvarEstadoLocalStorage();
+
+            this.exibirMensagem(
+                'success',
+                'Bolão finalizado',
+                'Todos os palpites foram preenchidos.'
+            );
+
+            return;
+        }
+
+        if (this.state.etapaAtual === 'resultado') {
+            this.salvarRegistroGED();
+            return;
+        }
     },
 });
