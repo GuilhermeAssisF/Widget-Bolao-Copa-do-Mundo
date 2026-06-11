@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_ARÁBIA_SAUDITA">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_ARÁBIA_SAUDITA)">
+    <rect x="0" y="0" width="400" height="267" fill="#006C35"/><text x="200" y="141" font-family="Arial" font-size="22" fill="#FFFFFF" text-anchor="middle">﷽</text><line x1="60" y1="163" x2="340" y2="163" stroke="#FFFFFF" stroke-width="3"/><polygon points="200,183 212,198 200,205 188,198" fill="#FFFFFF"/>
+  </g>
+</svg>

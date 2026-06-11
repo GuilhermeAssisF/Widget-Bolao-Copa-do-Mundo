@@ -1,0 +1,18 @@
+{
+	"version": "1.0.0",
+	"configurations": [
+		{
+			"id": "6gxty48o6qqmq9wt9dyuahs57ky2j",
+			"name": "IRHO",
+			"host": "177.39.21.75",
+			"ssl": false,
+			"port": 8080,
+			"username": "guilherme-af",
+			"password": "eyJpdiI6IjYzZTg2YjBhOTIzOGU2MmE5ZDY4OWIyODZmODQ3NTYzIiwic2FsdCI6IjEwZGEwNDI4NmYzMDA4NTljYmM2MzY3ZmE0NGY1NmJjIiwidGV4dCI6ImFlY2JlZDM1MjQ1YjUwODU4MmNjMjIxYzU5MjE2Njg1In0=",
+			"userCode": "guilherme-af",
+			"confirmExporting": false,
+			"hasBrowser": false,
+			"companyId": 1
+		}
+	]
+}

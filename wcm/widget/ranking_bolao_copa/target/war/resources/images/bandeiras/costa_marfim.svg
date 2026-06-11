@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_COSTA_DO_MARFIM">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_COSTA_DO_MARFIM)">
+    <rect x="0" y="0" width="133" height="267" fill="#F77F00"/><rect x="133" y="0" width="133" height="267" fill="#FFFFFF"/><rect x="266" y="0" width="134" height="267" fill="#009A44"/>
+  </g>
+</svg>

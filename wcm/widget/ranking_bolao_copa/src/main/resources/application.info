@@ -1,0 +1,22 @@
+application.type=widget
+application.code=ranking_bolao_copa
+application.title=Ranking Bolão Copa 2026
+application.description=Widget para acompanhamento do ranking, pontuação e palpites do Bolão da Copa 2026
+application.fluig.version=null
+application.category=Copa do Mundo
+application.renderer=freemarker
+
+developer.code=Guilherme
+developer.name=Guilherme Assis
+developer.url=http://www.fluig.com
+
+application.uiwidget=true
+application.mobileapp=false
+application.version=2.0.5-worldcup26-public-server-rest
+
+view.file=view.ftl
+edit.file=edit.ftl
+locale.file.base.name=ranking_bolao_copa
+
+application.resource.css.1=/resources/css/ranking_bolao_copa.css
+application.resource.js.1=/resources/js/ranking_bolao_copa.js

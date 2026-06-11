@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_BÉLGICA">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_BÉLGICA)">
+    <rect x="0" y="0" width="133" height="267" fill="#000000"/><rect x="133" y="0" width="133" height="267" fill="#FDDA24"/><rect x="266" y="0" width="134" height="267" fill="#EF3340"/>
+  </g>
+</svg>

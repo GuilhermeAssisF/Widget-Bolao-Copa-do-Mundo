@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_IRAQUE">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_IRAQUE)">
+    <rect x="0" y="0" width="400" height="89" fill="#CE1126"/><rect x="0" y="89" width="400" height="89" fill="#FFFFFF"/><rect x="0" y="178" width="400" height="89" fill="#000000"/><text x="200" y="141" font-family="Arial" font-size="14" fill="#CE1126" text-anchor="middle" opacity="0.9">الله أكبر</text>
+  </g>
+</svg>

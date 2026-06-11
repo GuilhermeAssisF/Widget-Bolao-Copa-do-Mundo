@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_ÁFRICA_DO_SUL">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_ÁFRICA_DO_SUL)">
+    <rect x="0" y="0" width="400" height="89" fill="#007A4D"/><rect x="0" y="89" width="400" height="89" fill="#FFB612"/><rect x="0" y="178" width="400" height="89" fill="#DE3831"/>
+  </g>
+</svg>

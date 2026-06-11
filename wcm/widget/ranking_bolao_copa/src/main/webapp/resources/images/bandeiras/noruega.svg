@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_NORUEGA">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_NORUEGA)">
+    <rect x="0" y="0" width="400" height="267" fill="#EF2B2D"/><rect x="0" y="104" width="400" height="59" fill="#FFFFFF"/><rect x="133" y="0" width="38" height="267" fill="#FFFFFF"/><rect x="0" y="107" width="400" height="53" fill="#002868"/><rect x="136" y="0" width="32" height="267" fill="#002868"/>
+  </g>
+</svg>

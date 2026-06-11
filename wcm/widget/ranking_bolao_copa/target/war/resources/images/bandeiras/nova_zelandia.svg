@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_NOVA_ZELÂNDIA">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_NOVA_ZELÂNDIA)">
+    <rect x="0" y="0" width="400" height="267" fill="#00247D"/><rect x="0" y="0" width="180" height="120" fill="#0057FF"/><line x1="0" y1="0" x2="180" y2="120" stroke="#FFFFFF" stroke-width="8"/><line x1="180" y1="0" x2="0" y2="120" stroke="#FFFFFF" stroke-width="8"/><rect x="0" y="48" width="180" height="24" fill="#FFFFFF"/><rect x="72" y="0" width="36" height="120" fill="#FFFFFF"/><polygon points="300,46 304,56 314,56 306,64 309,74 300,68 291,74 294,64 286,56 296,56" fill="#CC142B"/><polygon points="330,96 334,106 344,106 336,114 339,124 330,118 321,124 324,114 316,106 326,106" fill="#CC142B"/><polygon points="280,116 284,126 294,126 286,134 289,144 280,138 271,144 274,134 266,126 276,126" fill="#CC142B"/><polygon points="320,156 324,166 334,166 326,174 329,184 320,178 311,184 314,174 306,166 316,166" fill="#CC142B"/>
+  </g>
+</svg>

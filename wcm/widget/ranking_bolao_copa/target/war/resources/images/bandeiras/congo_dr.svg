@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_CONGO_DR">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_CONGO_DR)">
+    <rect x="0" y="0" width="400" height="267" fill="#007FFF"/><polygon points="0,0 133,0 400,267 0,267" fill="#F7D618"/><polygon points="100,0 153,0 420,267 400,267" fill="#CE1021"/>
+  </g>
+</svg>

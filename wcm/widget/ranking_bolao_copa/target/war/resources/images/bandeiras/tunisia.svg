@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_TUNÍSIA">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_TUNÍSIA)">
+    <rect x="0" y="0" width="400" height="267" fill="#E70013"/><circle cx="200" cy="133" r="60" fill="#FFFFFF"/><circle cx="218" cy="133" r="48" fill="#E70013"/><polygon points="250,121 254,133 250,145 242,133" fill="#FFFFFF"/>
+  </g>
+</svg>

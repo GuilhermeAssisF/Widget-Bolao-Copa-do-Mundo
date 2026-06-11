@@ -12,7 +12,7 @@
         token: '7e4f7fdb-b394-4385-8a88-95a87d475f41',
         tokenSecret: '9e9dcd7e-c8d2-4dd7-a69d-5f5083b9e2c0ec33ebf8-fa20-4ded-9376-0885093c95cf',
         gedFolderId: 684,
-        emailResponsavelBolao: 'assisguilhermefernandes@gmail.com',
+        emailResponsavelBolao: 'marketing@interhativaoperacional.com',
         googleDriveClientId: '286116751747-goda27iokurmta2tftnlgf4um29n8dpb.apps.googleusercontent.com',
         googleDriveFolderId: '1LXt_ofQpB7QJufgwtlD37XOKuBnizojJ',
         googleDriveScope: 'https://www.googleapis.com/auth/drive.file'
@@ -211,6 +211,37 @@
         var topo = Math.max(0, ($alvo.offset() && $alvo.offset().top ? $alvo.offset().top : 0) - 20);
 
         $('html, body').stop(true).animate({ scrollTop: topo }, 250);
+    },
+
+    destacarJogosPendentes: function (matchIds) {
+        if (!matchIds || !matchIds.length || typeof $ === 'undefined') {
+            return;
+        }
+
+        var $widget = $('#WidgetBolaoCopa2026_' + this.instanceId);
+        var $primeiro = $();
+
+        $widget.find('.bolao-match-card-pending').removeClass('bolao-match-card-pending');
+
+        for (var i = 0; i < matchIds.length; i++) {
+            var matchId = String(matchIds[i]).replace(/"/g, '\\"');
+            var $card = $widget.find('.bolao-match-card[data-match-id="' + matchId + '"], .bolao-knockout-card[data-match-id="' + matchId + '"]');
+
+            if (!$card.length) {
+                continue;
+            }
+
+            $card.addClass('bolao-match-card-pending');
+
+            if (!$primeiro.length) {
+                $primeiro = $card.first();
+            }
+        }
+
+        if ($primeiro.length) {
+            var topo = Math.max(0, ($primeiro.offset().top || 0) - 90);
+            $('html, body').stop(true).animate({ scrollTop: topo }, 300);
+        }
     },
 
     alternarSidebarMobile: function () {
@@ -609,8 +640,9 @@
         var matchId = $input.data('match-id');
         var lado = $input.data('lado');
         var valor = $input.val();
+        var palpiteAtual = this.state.palpites[matchId];
 
-        if (!this.state.palpites[matchId]) {
+        if (!palpiteAtual) {
             return;
         }
 
@@ -629,20 +661,37 @@
         }
 
         if (lado === 'A') {
-            this.state.palpites[matchId].placarA = valor === '' ? null : valor;
+            palpiteAtual.placarA = valor === '' ? null : valor;
         }
 
         if (lado === 'B') {
-            this.state.palpites[matchId].placarB = valor === '' ? null : valor;
+            palpiteAtual.placarB = valor === '' ? null : valor;
         }
 
         this.definirVencedorPalpite(matchId);
-        this.calcularTodasClassificacoes();
-        this.atualizarClassificacaoPrincipal();
-        this.atualizarSidebar();
-        this.atualizarCardJogoCompleto(matchId);
-        this.atualizarTabelasDaTela();
+
+        if (palpiteAtual.fase === 'grupos') {
+            this.calcularTodasClassificacoes();
+            this.atualizarClassificacaoPrincipal();
+            this.atualizarSidebar();
+            this.atualizarCardJogoCompleto(matchId);
+            this.atualizarTabelasDaTela();
+            this.prepararMataMataFases();
+            palpiteAtual = this.state.palpites[matchId] || palpiteAtual;
+        } else {
+            this.prepararMataMataFases();
+            palpiteAtual = this.state.palpites[matchId] || palpiteAtual;
+        }
+
         this.salvarEstadoLocalStorage();
+
+        if (
+            palpiteAtual.placarA !== null &&
+            palpiteAtual.placarB !== null
+        ) {
+            $('.bolao-match-card[data-match-id="' + matchId + '"], .bolao-knockout-card[data-match-id="' + matchId + '"]')
+                .removeClass('bolao-match-card-pending');
+        }
 
         if (this.state.etapaAtual === 'mata_mata') {
             this.atualizarCardJogoMataMata(matchId);
@@ -662,12 +711,12 @@
         }
 
         if (palpite.placarA > palpite.placarB) {
-            palpite.vencedor = palpite.timeA;
+            palpite.vencedor = palpite.timeAResolvido || palpite.timeA;
             return;
         }
 
         if (palpite.placarB > palpite.placarA) {
-            palpite.vencedor = palpite.timeB;
+            palpite.vencedor = palpite.timeBResolvido || palpite.timeB;
             return;
         }
 
@@ -696,25 +745,39 @@
 
     atualizarCardJogoMataMata: function (matchId) {
         var palpite = this.state.palpites[matchId];
-        var jogo = null;
+        var jogo = this.obterJogoMataMataResolvidoPorId(matchId);
         var $card = $('.bolao-knockout-card[data-match-id="' + matchId + '"]');
 
         if (!palpite || !$card.length) {
             return;
         }
 
-        for (var i = 0; i < this.state.jogos.length; i++) {
-            if (this.state.jogos[i].id === matchId) {
-                jogo = this.state.jogos[i];
-                break;
-            }
-        }
-
         if (!jogo) {
             return;
         }
 
-        $card.replaceWith(this.renderizarJogoMataMata(jogo));
+        if (palpite.placarA !== null && palpite.placarB !== null && palpite.vencedor) {
+            $card.addClass('completed');
+        } else {
+            $card.removeClass('completed');
+        }
+
+        var htmlAreaVencedor = this.renderizarAreaVencedorMataMata(jogo, palpite);
+        var $areaVencedor = $card.find('.bolao-winner-area');
+
+        if ($areaVencedor.length) {
+            if (htmlAreaVencedor) {
+                $areaVencedor.replaceWith(htmlAreaVencedor);
+            } else {
+                $areaVencedor.remove();
+            }
+
+            return;
+        }
+
+        if (htmlAreaVencedor) {
+            $card.find('.bolao-knockout-teams').after(htmlAreaVencedor);
+        }
     },
 
     atualizarTabelasDaTela: function () {
@@ -954,26 +1017,47 @@
         var jogosGrupos = this.state.jogos.filter(function (jogo) {
             return jogo.fase === 'grupos';
         });
+        var rodadaPendente = null;
+        var jogosPendentes = [];
 
         for (var i = 0; i < jogosGrupos.length; i++) {
             var jogo = jogosGrupos[i];
             var palpite = this.state.palpites[jogo.id];
 
             if (!palpite || palpite.placarA === null || palpite.placarB === null) {
-                this.exibirMensagem(
-                    'warning',
-                    'Fase de grupos incompleta',
-                    'Preencha todos os placares da fase de grupos antes de avançar.'
-                );
-
-                this.state.rodadaAtual = jogo.rodada || 1;
-                this.renderizarEtapa();
-
-                return false;
+                rodadaPendente = jogo.rodada || 1;
+                break;
             }
         }
 
-        return true;
+        if (!rodadaPendente) {
+            return true;
+        }
+
+        for (var j = 0; j < jogosGrupos.length; j++) {
+            var jogoPendente = jogosGrupos[j];
+            var palpitePendente = this.state.palpites[jogoPendente.id];
+
+            if (parseInt(jogoPendente.rodada, 10) !== parseInt(rodadaPendente, 10)) {
+                continue;
+            }
+
+            if (!palpitePendente || palpitePendente.placarA === null || palpitePendente.placarB === null) {
+                jogosPendentes.push(jogoPendente.id);
+            }
+        }
+
+        this.exibirMensagem(
+            'warning',
+            'Fase de grupos incompleta',
+            'Preencha todos os placares da rodada ' + rodadaPendente + ' antes de avançar.'
+        );
+
+        this.state.rodadaAtual = rodadaPendente;
+        this.renderizarEtapa();
+        this.destacarJogosPendentes(jogosPendentes);
+
+        return false;
     },
 
     obterSelecao: function (selecaoId) {
@@ -1131,7 +1215,7 @@
 
         html += '       <div class="bolao-field">';
         html += '           <label for="bolaoNome_' + this.instanceId + '">Nome</label>';
-        html += '           <input type="text" class="form-control" id="bolaoNome_' + this.instanceId + '" placeholder="Ex: Guilherme Assis" value="' + this.escaparHtml(this.state.participante.nome) + '">';
+        html += '           <input type="text" class="form-control" id="bolaoNome_' + this.instanceId + '" placeholder="Ex: João Fernandes" value="' + this.escaparHtml(this.state.participante.nome) + '">';
         html += '       </div>';
 
         html += '       <div class="bolao-field">';
@@ -1461,6 +1545,7 @@
         var jogosRound32 = this.state.jogos.filter(function (jogo) {
             return jogo.fase === 'round_32';
         });
+        var mapaMelhoresTerceiros = this.resolverMelhoresTerceirosMataMata(jogosRound32);
 
         var terceirosUsados = {};
         var jogosResolvidos = [];
@@ -1468,8 +1553,18 @@
         for (var i = 0; i < jogosRound32.length; i++) {
             var jogoOriginal = jogosRound32[i];
 
-            var timeAResolvido = this.resolverSlotMataMata(jogoOriginal.timeA, terceirosUsados);
-            var timeBResolvido = this.resolverSlotMataMata(jogoOriginal.timeB, terceirosUsados);
+            var timeAResolvido = this.resolverSlotMataMata(
+                jogoOriginal.timeA,
+                terceirosUsados,
+                mapaMelhoresTerceiros,
+                jogoOriginal.id + ':A'
+            );
+            var timeBResolvido = this.resolverSlotMataMata(
+                jogoOriginal.timeB,
+                terceirosUsados,
+                mapaMelhoresTerceiros,
+                jogoOriginal.id + ':B'
+            );
 
             var jogoResolvido = {
                 id: jogoOriginal.id,
@@ -1608,18 +1703,31 @@
         return terceiros.slice(0, 8);
     },
 
-    resolverSlotMataMata: function (slot, terceirosUsados) {
+    resolverSlotMataMata: function (slot, terceirosUsados, mapaMelhoresTerceiros, chaveSlot, contextoMataMata) {
         if (!slot) {
             return null;
         }
 
         var slotTexto = String(slot).trim();
+        var participanteReferencia = this.obterParticipanteReferenciaMataMata(slotTexto, contextoMataMata);
+
+        if (participanteReferencia !== undefined) {
+            return participanteReferencia;
+        }
 
         if (/^[12][A-L]$/.test(slotTexto)) {
             return this.state.mapaClassificados[slotTexto] || slotTexto;
         }
 
         if (slotTexto.indexOf('Best 3rd') === 0) {
+            if (
+                mapaMelhoresTerceiros &&
+                chaveSlot &&
+                mapaMelhoresTerceiros[chaveSlot]
+            ) {
+                return mapaMelhoresTerceiros[chaveSlot];
+            }
+
             var gruposPermitidos = this.extrairGruposPermitidosTerceiro(slotTexto);
 
             for (var i = 0; i < this.state.melhoresTerceiros.length; i++) {
@@ -1638,6 +1746,149 @@
         }
 
         return slotTexto;
+    },
+
+    resolverMelhoresTerceirosMataMata: function (jogosRound32) {
+        var slots = [];
+        var terceiros = this.state.melhoresTerceiros || [];
+
+        for (var i = 0; i < jogosRound32.length; i++) {
+            var jogo = jogosRound32[i];
+
+            if (String(jogo.timeA || '').indexOf('Best 3rd') === 0) {
+                slots.push({
+                    chave: jogo.id + ':A',
+                    ordem: slots.length,
+                    gruposPermitidos: this.extrairGruposPermitidosTerceiro(jogo.timeA),
+                    candidatos: this.obterCandidatosTerceiroPorGrupos(terceiros, jogo.timeA)
+                });
+            }
+
+            if (String(jogo.timeB || '').indexOf('Best 3rd') === 0) {
+                slots.push({
+                    chave: jogo.id + ':B',
+                    ordem: slots.length,
+                    gruposPermitidos: this.extrairGruposPermitidosTerceiro(jogo.timeB),
+                    candidatos: this.obterCandidatosTerceiroPorGrupos(terceiros, jogo.timeB)
+                });
+            }
+        }
+
+        if (!slots.length) {
+            return {};
+        }
+
+        var slotsOrdenados = slots.slice().sort(function (a, b) {
+            if (a.candidatos.length !== b.candidatos.length) {
+                return a.candidatos.length - b.candidatos.length;
+            }
+
+            return a.ordem - b.ordem;
+        });
+
+        var atribuicao = {};
+        var usados = {};
+
+        var resolverRecursivo = function (indice) {
+            if (indice >= slotsOrdenados.length) {
+                return true;
+            }
+
+            var slot = slotsOrdenados[indice];
+
+            for (var j = 0; j < slot.candidatos.length; j++) {
+                var candidato = slot.candidatos[j];
+
+                if (usados[candidato.selecaoId]) {
+                    continue;
+                }
+
+                usados[candidato.selecaoId] = true;
+                atribuicao[slot.chave] = candidato.selecaoId;
+
+                if (resolverRecursivo(indice + 1)) {
+                    return true;
+                }
+
+                delete atribuicao[slot.chave];
+                delete usados[candidato.selecaoId];
+            }
+
+            return false;
+        };
+
+        if (resolverRecursivo(0)) {
+            return atribuicao;
+        }
+
+        // Fallback: se a combinacao sem repeticao falhar, ainda assim nao deixa
+        // o mata-mata voltar para placeholder quando houver classificado elegivel.
+        atribuicao = {};
+        usados = {};
+
+        for (var k = 0; k < slots.length; k++) {
+            var slotFallback = slots[k];
+            var escolhidoFallback = null;
+
+            // Primeiro tenta manter selecoes unicas.
+            for (var m = 0; m < slotFallback.candidatos.length; m++) {
+                var candidatoFallback = slotFallback.candidatos[m];
+
+                if (usados[candidatoFallback.selecaoId]) {
+                    continue;
+                }
+
+                escolhidoFallback = candidatoFallback;
+                break;
+            }
+
+            // Ultima protecao: melhor candidato elegivel, mesmo que ja usado.
+            if (!escolhidoFallback && slotFallback.candidatos.length) {
+                escolhidoFallback = slotFallback.candidatos[0];
+            }
+
+            if (escolhidoFallback) {
+                usados[escolhidoFallback.selecaoId] = true;
+                atribuicao[slotFallback.chave] = escolhidoFallback.selecaoId;
+            }
+        }
+
+        return atribuicao;
+    },
+
+    obterCandidatosTerceiroPorGrupos: function (terceiros, slotTexto) {
+        var gruposPermitidos = this.extrairGruposPermitidosTerceiro(slotTexto);
+        var candidatos = [];
+
+        for (var i = 0; i < terceiros.length; i++) {
+            var terceiro = terceiros[i];
+
+            if (gruposPermitidos.indexOf(terceiro.grupo) !== -1) {
+                candidatos.push(terceiro);
+            }
+        }
+
+        return candidatos;
+    },
+
+    obterJogoMataMataResolvidoPorId: function (matchId) {
+        var fases = this.state.mataMataResolvido || {};
+
+        for (var faseId in fases) {
+            if (!fases.hasOwnProperty(faseId)) {
+                continue;
+            }
+
+            var jogos = fases[faseId] || [];
+
+            for (var i = 0; i < jogos.length; i++) {
+                if (jogos[i].id === matchId) {
+                    return jogos[i];
+                }
+            }
+        }
+
+        return null;
     },
 
     extrairGruposPermitidosTerceiro: function (texto) {
@@ -1877,6 +2128,175 @@
         return html;
     },
 
+    normalizarChaveGrupoMataMata: function (grupo) {
+        return String(grupo || '').trim().replace(/\s+/g, ' ').toUpperCase();
+    },
+
+    normalizarMatchIdMataMata: function (numero) {
+        var texto = String(numero || '').replace(/\D/g, '');
+
+        while (texto.length < 3) {
+            texto = '0' + texto;
+        }
+
+        return 'M' + texto;
+    },
+
+    identificarReferenciaMataMata: function (slotTexto) {
+        var texto = String(slotTexto || '').trim();
+        var match = texto.match(/^W(\d+)$/i);
+
+        if (match) {
+            return { tipo: 'vencedor', matchId: this.normalizarMatchIdMataMata(match[1]) };
+        }
+
+        match = texto.match(/^L(\d+)$/i);
+
+        if (match) {
+            return { tipo: 'perdedor', matchId: this.normalizarMatchIdMataMata(match[1]) };
+        }
+
+        match = texto.match(/^(VENCEDOR|GANHADOR)\s+JOGO\s+(\d+)$/i);
+
+        if (match) {
+            return { tipo: 'vencedor', grupo: 'JOGO ' + parseInt(match[2], 10) };
+        }
+
+        match = texto.match(/^(VENCEDOR|GANHADOR)\s+QUARTAS\s+(\d+)$/i);
+
+        if (match) {
+            return { tipo: 'vencedor', grupo: 'QUARTAS ' + parseInt(match[2], 10) };
+        }
+
+        match = texto.match(/^(VENCEDOR|GANHADOR)\s+SEMI\s+(\d+)$/i);
+
+        if (match) {
+            return { tipo: 'vencedor', grupo: 'SEMI ' + parseInt(match[2], 10) };
+        }
+
+        match = texto.match(/^PERDEDOR\s+SEMI\s+(\d+)$/i);
+
+        if (match) {
+            return { tipo: 'perdedor', grupo: 'SEMI ' + parseInt(match[1], 10) };
+        }
+
+        match = texto.match(/^PERDEDOR\s+JOGO\s+(\d+)$/i);
+
+        if (match) {
+            return { tipo: 'perdedor', grupo: 'JOGO ' + parseInt(match[1], 10) };
+        }
+
+        return null;
+    },
+
+    obterJogoReferenciaMataMata: function (referencia, contexto) {
+        if (!referencia || !contexto) {
+            return null;
+        }
+
+        if (referencia.matchId && contexto.porId && contexto.porId[referencia.matchId]) {
+            return contexto.porId[referencia.matchId];
+        }
+
+        if (referencia.grupo && contexto.porGrupo) {
+            return contexto.porGrupo[this.normalizarChaveGrupoMataMata(referencia.grupo)] || null;
+        }
+
+        return null;
+    },
+
+    obterValorLadoResolvidoMataMata: function (jogo, lado) {
+        if (!jogo) {
+            return null;
+        }
+
+        return lado === 'A'
+            ? (jogo.timeAResolvido || jogo.timeA)
+            : (jogo.timeBResolvido || jogo.timeB);
+    },
+
+    obterLadoVencedorMataMata: function (jogo) {
+        var palpite = jogo ? this.state.palpites[jogo.id] : null;
+
+        if (!jogo || !palpite || !palpite.vencedor) {
+            return null;
+        }
+
+        var valorA = this.obterValorLadoResolvidoMataMata(jogo, 'A');
+        var valorB = this.obterValorLadoResolvidoMataMata(jogo, 'B');
+
+        if (palpite.vencedor === valorA || palpite.vencedor === jogo.timeA || palpite.vencedor === palpite.timeA) {
+            return 'A';
+        }
+
+        if (palpite.vencedor === valorB || palpite.vencedor === jogo.timeB || palpite.vencedor === palpite.timeB) {
+            return 'B';
+        }
+
+        if (palpite.placarA !== null && palpite.placarB !== null && palpite.placarA !== palpite.placarB) {
+            return palpite.placarA > palpite.placarB ? 'A' : 'B';
+        }
+
+        return null;
+    },
+
+    obterParticipanteReferenciaMataMata: function (slotTexto, contexto) {
+        var referencia = this.identificarReferenciaMataMata(slotTexto);
+
+        if (!referencia) {
+            return undefined;
+        }
+
+        var jogo = this.obterJogoReferenciaMataMata(referencia, contexto);
+        var ladoVencedor = this.obterLadoVencedorMataMata(jogo);
+
+        if (!jogo || !ladoVencedor) {
+            return undefined;
+        }
+
+        if (referencia.tipo === 'vencedor') {
+            return this.obterValorLadoResolvidoMataMata(jogo, ladoVencedor);
+        }
+
+        return this.obterValorLadoResolvidoMataMata(jogo, ladoVencedor === 'A' ? 'B' : 'A');
+    },
+
+    normalizarVencedorPalpiteMataMata: function (palpite, timeAResolvido, timeBResolvido) {
+        if (!palpite) {
+            return;
+        }
+
+        if (palpite.placarA === null || palpite.placarB === null) {
+            palpite.vencedor = null;
+            return;
+        }
+
+        var valorA = timeAResolvido || palpite.timeA;
+        var valorB = timeBResolvido || palpite.timeB;
+
+        if (palpite.placarA > palpite.placarB) {
+            palpite.vencedor = valorA;
+            return;
+        }
+
+        if (palpite.placarB > palpite.placarA) {
+            palpite.vencedor = valorB;
+            return;
+        }
+
+        if (palpite.vencedor === valorA || palpite.vencedor === palpite.timeA || palpite.vencedor === timeAResolvido) {
+            palpite.vencedor = valorA;
+            return;
+        }
+
+        if (palpite.vencedor === valorB || palpite.vencedor === palpite.timeB || palpite.vencedor === timeBResolvido) {
+            palpite.vencedor = valorB;
+            return;
+        }
+
+        palpite.vencedor = null;
+    },
+
     prepararMataMataFases: function () {
         this.calcularTodasClassificacoes();
 
@@ -1884,8 +2304,12 @@
         this.state.melhoresTerceiros = this.calcularMelhoresTerceiros();
         this.obterFasesMataMataDisponiveis();
 
+        var jogosOriginaisPorFase = {};
         var jogosPorFase = {};
-        var terceirosUsados = {};
+        var contextoMataMata = {
+            porId: {},
+            porGrupo: {}
+        };
 
         this.state.mataMata = {};
         this.state.mataMataResolvido = {};
@@ -1898,47 +2322,85 @@
             }
 
             var faseNormalizada = this.normalizarFaseMataMata(jogoOriginal.fase);
-            var timeAResolvido = this.resolverSlotMataMata(jogoOriginal.timeA, terceirosUsados);
-            var timeBResolvido = this.resolverSlotMataMata(jogoOriginal.timeB, terceirosUsados);
-            var palpiteExistente = this.state.palpites[jogoOriginal.id] || {};
 
-            this.state.palpites[jogoOriginal.id] = {
-                matchId: jogoOriginal.id,
-                fase: faseNormalizada,
-                faseOriginal: jogoOriginal.fase,
-                grupo: jogoOriginal.grupo || null,
-                rodada: null,
-                timeA: jogoOriginal.timeA,
-                timeB: jogoOriginal.timeB,
-                timeAResolvido: timeAResolvido,
-                timeBResolvido: timeBResolvido,
-                placarA: palpiteExistente.placarA !== undefined ? palpiteExistente.placarA : null,
-                placarB: palpiteExistente.placarB !== undefined ? palpiteExistente.placarB : null,
-                vencedor: palpiteExistente.vencedor !== undefined ? palpiteExistente.vencedor : null
-            };
-
-            var jogoResolvido = {
-                id: jogoOriginal.id,
-                fase: faseNormalizada,
-                faseOriginal: jogoOriginal.fase,
-                grupo: jogoOriginal.grupo || null,
-                data: jogoOriginal.data,
-                hora: jogoOriginal.hora,
-                local: jogoOriginal.local,
-                timeA: jogoOriginal.timeA,
-                timeB: jogoOriginal.timeB,
-                timeAResolvido: timeAResolvido,
-                timeBResolvido: timeBResolvido
-            };
-
-            if (!jogosPorFase[faseNormalizada]) {
-                jogosPorFase[faseNormalizada] = [];
+            if (!jogosOriginaisPorFase[faseNormalizada]) {
+                jogosOriginaisPorFase[faseNormalizada] = [];
             }
 
-            jogosPorFase[faseNormalizada].push(jogoResolvido);
+            jogosOriginaisPorFase[faseNormalizada].push(jogoOriginal);
+        }
 
-            this.state.mataMata[faseNormalizada] = jogosPorFase[faseNormalizada];
-            this.state.mataMataResolvido[faseNormalizada] = jogosPorFase[faseNormalizada];
+        var mapaMelhoresTerceiros = this.resolverMelhoresTerceirosMataMata(jogosOriginaisPorFase.round_32 || []);
+        var fases = this.state.fasesMataMataDisponiveis || [];
+
+        for (var f = 0; f < fases.length; f++) {
+            var faseId = fases[f].id;
+            var jogosDaFase = jogosOriginaisPorFase[faseId] || [];
+            var terceirosUsados = {};
+
+            for (var j = 0; j < jogosDaFase.length; j++) {
+                var jogoOriginalFase = jogosDaFase[j];
+                var timeAResolvido = this.resolverSlotMataMata(
+                    jogoOriginalFase.timeA,
+                    terceirosUsados,
+                    mapaMelhoresTerceiros,
+                    jogoOriginalFase.id + ':A',
+                    contextoMataMata
+                );
+                var timeBResolvido = this.resolverSlotMataMata(
+                    jogoOriginalFase.timeB,
+                    terceirosUsados,
+                    mapaMelhoresTerceiros,
+                    jogoOriginalFase.id + ':B',
+                    contextoMataMata
+                );
+                var palpiteExistente = this.state.palpites[jogoOriginalFase.id] || {};
+                var palpiteAtualizado = {
+                    matchId: jogoOriginalFase.id,
+                    fase: faseId,
+                    faseOriginal: jogoOriginalFase.fase,
+                    grupo: jogoOriginalFase.grupo || null,
+                    rodada: null,
+                    timeA: jogoOriginalFase.timeA,
+                    timeB: jogoOriginalFase.timeB,
+                    timeAResolvido: timeAResolvido,
+                    timeBResolvido: timeBResolvido,
+                    placarA: palpiteExistente.placarA !== undefined ? palpiteExistente.placarA : null,
+                    placarB: palpiteExistente.placarB !== undefined ? palpiteExistente.placarB : null,
+                    vencedor: palpiteExistente.vencedor !== undefined ? palpiteExistente.vencedor : null
+                };
+
+                this.normalizarVencedorPalpiteMataMata(palpiteAtualizado, timeAResolvido, timeBResolvido);
+                this.state.palpites[jogoOriginalFase.id] = palpiteAtualizado;
+
+                var jogoResolvido = {
+                    id: jogoOriginalFase.id,
+                    fase: faseId,
+                    faseOriginal: jogoOriginalFase.fase,
+                    grupo: jogoOriginalFase.grupo || null,
+                    data: jogoOriginalFase.data,
+                    hora: jogoOriginalFase.hora,
+                    local: jogoOriginalFase.local,
+                    timeA: jogoOriginalFase.timeA,
+                    timeB: jogoOriginalFase.timeB,
+                    timeAResolvido: timeAResolvido,
+                    timeBResolvido: timeBResolvido
+                };
+
+                if (!jogosPorFase[faseId]) {
+                    jogosPorFase[faseId] = [];
+                }
+
+                jogosPorFase[faseId].push(jogoResolvido);
+                contextoMataMata.porId[jogoResolvido.id] = jogoResolvido;
+
+                if (jogoResolvido.grupo) {
+                    contextoMataMata.porGrupo[this.normalizarChaveGrupoMataMata(jogoResolvido.grupo)] = jogoResolvido;
+                }
+
+                this.state.mataMata[faseId] = jogosPorFase[faseId];
+                this.state.mataMataResolvido[faseId] = jogosPorFase[faseId];
+            }
         }
 
         return this.state.mataMataResolvido;
@@ -1993,30 +2455,43 @@
     validarFaseMataMataAtualFases: function () {
         var faseAtual = this.state.faseMataMataAtual || 'round_32';
         var jogos = this.state.mataMataResolvido[faseAtual] || [];
+        var jogosSemPlacar = [];
+        var jogosSemClassificado = [];
 
         for (var i = 0; i < jogos.length; i++) {
             var jogo = jogos[i];
             var palpite = this.state.palpites[jogo.id];
 
             if (!palpite || palpite.placarA === null || palpite.placarB === null) {
-                this.exibirMensagem(
-                    'warning',
-                    'Mata-mata incompleto',
-                    'Preencha o placar do jogo antes de continuar.'
-                );
-
-                return false;
+                jogosSemPlacar.push(jogo.id);
+                continue;
             }
 
             if (!palpite.vencedor) {
-                this.exibirMensagem(
-                    'warning',
-                    'Escolha o classificado',
-                    'O jogo está empatado. Escolha qual lado avança.'
-                );
-
-                return false;
+                jogosSemClassificado.push(jogo.id);
             }
+        }
+
+        if (jogosSemPlacar.length) {
+            this.exibirMensagem(
+                'warning',
+                'Mata-mata incompleto',
+                'Preencha os placares destacados antes de continuar.'
+            );
+
+            this.destacarJogosPendentes(jogosSemPlacar);
+            return false;
+        }
+
+        if (jogosSemClassificado.length) {
+            this.exibirMensagem(
+                'warning',
+                'Escolha o classificado',
+                'Escolha quem avança nos jogos destacados.'
+            );
+
+            this.destacarJogosPendentes(jogosSemClassificado);
+            return false;
         }
 
         return true;
@@ -2080,7 +2555,7 @@
         this.state.campeao = {
             matchId: jogoFinal.id,
             vencedor: palpite.vencedor,
-            vencedorLabel: this.formatarSlotMataMata(palpite.vencedor)
+            vencedorLabel: this.obterNomeSelecaoOuSlot(palpite.vencedor)
         };
     },
 
@@ -3387,10 +3862,16 @@
     },
 
     renderizarJogoMataMata: function (jogo) {
+        var jogoResolvido = this.obterJogoMataMataResolvidoPorId(jogo.id) || jogo;
         var palpite = this.state.palpites[jogo.id] || {};
-
-        var nomeTimeA = this.formatarSlotMataMata(jogo.timeA);
-        var nomeTimeB = this.formatarSlotMataMata(jogo.timeB);
+        var timeA = this.obterDadosExibicaoMataMata(
+            jogoResolvido.timeAResolvido !== undefined ? jogoResolvido.timeAResolvido : palpite.timeAResolvido,
+            jogoResolvido.timeA
+        );
+        var timeB = this.obterDadosExibicaoMataMata(
+            jogoResolvido.timeBResolvido !== undefined ? jogoResolvido.timeBResolvido : palpite.timeBResolvido,
+            jogoResolvido.timeB
+        );
 
         var placarA = palpite.placarA !== null && palpite.placarA !== undefined ? palpite.placarA : '';
         var placarB = palpite.placarB !== null && palpite.placarB !== undefined ? palpite.placarB : '';
@@ -3410,8 +3891,15 @@
         html += '   <div class="bolao-knockout-teams">';
 
         html += '       <div class="bolao-knockout-team home bolao-knockout-slot">';
-        html += '           <span class="bolao-slot-icon">A</span>';
-        html += '           <span title="' + this.escaparHtml(nomeTimeA) + '">' + this.escaparHtml(nomeTimeA) + '</span>';
+        html += '           <div class="bolao-knockout-team-main">';
+        html += '               <img class="bolao-flag" src="' + this.escaparHtml(timeA.bandeira) + '" alt="' + this.escaparHtml(timeA.alt) + '" onerror="this.onerror=null;this.src=\'' + this.obterPlaceholderBandeira() + '\'">';
+        html += '               <div class="bolao-knockout-team-text">';
+        html += '                   <span class="bolao-knockout-team-name" title="' + this.escaparHtml(timeA.nome) + '">' + this.escaparHtml(timeA.nome) + '</span>';
+        if (timeA.legenda) {
+            html += '                   <span class="bolao-knockout-team-origin" title="' + this.escaparHtml(timeA.legenda) + '">' + this.escaparHtml(timeA.legenda) + '</span>';
+        }
+        html += '               </div>';
+        html += '           </div>';
         html += '       </div>';
 
         html += '       <input type="number" min="0" max="99" class="bolao-score-input" data-match-id="' + this.escaparHtml(jogo.id) + '" data-lado="A" value="' + placarA + '">';
@@ -3421,8 +3909,15 @@
         html += '       <input type="number" min="0" max="99" class="bolao-score-input" data-match-id="' + this.escaparHtml(jogo.id) + '" data-lado="B" value="' + placarB + '">';
 
         html += '       <div class="bolao-knockout-team away bolao-knockout-slot">';
-        html += '           <span title="' + this.escaparHtml(nomeTimeB) + '">' + this.escaparHtml(nomeTimeB) + '</span>';
-        html += '           <span class="bolao-slot-icon">B</span>';
+        html += '           <div class="bolao-knockout-team-main">';
+        html += '               <img class="bolao-flag" src="' + this.escaparHtml(timeB.bandeira) + '" alt="' + this.escaparHtml(timeB.alt) + '" onerror="this.onerror=null;this.src=\'' + this.obterPlaceholderBandeira() + '\'">';
+        html += '               <div class="bolao-knockout-team-text">';
+        html += '                   <span class="bolao-knockout-team-name" title="' + this.escaparHtml(timeB.nome) + '">' + this.escaparHtml(timeB.nome) + '</span>';
+        if (timeB.legenda) {
+            html += '                   <span class="bolao-knockout-team-origin" title="' + this.escaparHtml(timeB.legenda) + '">' + this.escaparHtml(timeB.legenda) + '</span>';
+        }
+        html += '               </div>';
+        html += '           </div>';
         html += '       </div>';
 
         html += '   </div>';
@@ -3435,6 +3930,7 @@
     },
 
     renderizarAreaVencedorMataMata: function (jogo, palpite) {
+        var jogoResolvido = this.obterJogoMataMataResolvidoPorId(jogo.id) || jogo;
         if (
             palpite.placarA === null ||
             palpite.placarB === null ||
@@ -3444,15 +3940,25 @@
             return '';
         }
 
-        var nomeTimeA = this.formatarSlotMataMata(jogo.timeA);
-        var nomeTimeB = this.formatarSlotMataMata(jogo.timeB);
+        var nomeTimeA = this.obterNomeExibicaoMataMata(
+            jogoResolvido.timeAResolvido !== undefined ? jogoResolvido.timeAResolvido : palpite.timeAResolvido,
+            jogoResolvido.timeA
+        );
+        var nomeTimeB = this.obterNomeExibicaoMataMata(
+            jogoResolvido.timeBResolvido !== undefined ? jogoResolvido.timeBResolvido : palpite.timeBResolvido,
+            jogoResolvido.timeB
+        );
+        var valorTimeA = jogoResolvido.timeAResolvido || palpite.timeAResolvido || jogoResolvido.timeA;
+        var valorTimeB = jogoResolvido.timeBResolvido || palpite.timeBResolvido || jogoResolvido.timeB;
 
         var html = '';
 
         html += '<div class="bolao-winner-area">';
 
         if (palpite.placarA !== palpite.placarB && palpite.vencedor) {
-            var vencedorLabel = palpite.vencedor === jogo.timeA ? nomeTimeA : nomeTimeB;
+            var vencedorLabel = palpite.vencedor === valorTimeA || palpite.vencedor === jogoResolvido.timeA
+                ? nomeTimeA
+                : nomeTimeB;
 
             html += '<span class="bolao-winner-badge">';
             html += 'Classificado: ' + this.escaparHtml(vencedorLabel);
@@ -3463,11 +3969,11 @@
         }
 
         html += '<div class="bolao-winner-options">';
-        html += '   <button type="button" class="bolao-winner-btn ' + (palpite.vencedor === jogo.timeA ? 'active' : '') + '" data-match-id="' + this.escaparHtml(jogo.id) + '" data-vencedor="' + this.escaparHtml(jogo.timeA) + '">';
+        html += '   <button type="button" class="bolao-winner-btn ' + (palpite.vencedor === valorTimeA ? 'active' : '') + '" data-match-id="' + this.escaparHtml(jogo.id) + '" data-vencedor="' + this.escaparHtml(valorTimeA) + '">';
         html += '       Classificar ' + this.escaparHtml(nomeTimeA);
         html += '   </button>';
 
-        html += '   <button type="button" class="bolao-winner-btn ' + (palpite.vencedor === jogo.timeB ? 'active' : '') + '" data-match-id="' + this.escaparHtml(jogo.id) + '" data-vencedor="' + this.escaparHtml(jogo.timeB) + '">';
+        html += '   <button type="button" class="bolao-winner-btn ' + (palpite.vencedor === valorTimeB ? 'active' : '') + '" data-match-id="' + this.escaparHtml(jogo.id) + '" data-vencedor="' + this.escaparHtml(valorTimeB) + '">';
         html += '       Classificar ' + this.escaparHtml(nomeTimeB);
         html += '   </button>';
         html += '</div>';
@@ -3486,6 +3992,7 @@
         }
 
         this.state.palpites[matchId].vencedor = vencedor;
+        this.prepararMataMataFases();
 
         var scrollAtual = typeof window !== 'undefined' && typeof $ !== 'undefined'
             ? $(window).scrollTop()
@@ -3572,6 +4079,71 @@
         return texto;
     },
 
+    obterNomeSelecaoOuSlot: function (valor) {
+        if (!valor) {
+            return 'A definir';
+        }
+
+        var selecao = this.state.selecoes && this.state.selecoes[valor];
+
+        if (selecao && selecao.nome) {
+            return selecao.nome;
+        }
+
+        return this.formatarSlotMataMata(valor);
+    },
+
+    obterNomeExibicaoMataMata: function (slotResolvido, slotOriginal) {
+        return this.obterNomeSelecaoOuSlot(slotResolvido || slotOriginal);
+    },
+
+    formatarLegendaOrigemMataMata: function (slotOriginal) {
+        if (!slotOriginal) {
+            return '';
+        }
+
+        var texto = String(slotOriginal).trim();
+        var matchWinner = texto.match(/^W(\d+)$/i);
+        var matchLoser = texto.match(/^L(\d+)$/i);
+
+        if (matchWinner) {
+            return 'Vencedor M' + matchWinner[1];
+        }
+
+        if (matchLoser) {
+            return 'Perdedor M' + matchLoser[1];
+        }
+
+        if (/^VENCEDOR\s+/i.test(texto)) {
+            return 'Vencedor ' + texto.replace(/^VENCEDOR\s+/i, '');
+        }
+
+        if (/^GANHADOR\s+/i.test(texto)) {
+            return 'Vencedor ' + texto.replace(/^GANHADOR\s+/i, '');
+        }
+
+        if (/^PERDEDOR\s+/i.test(texto)) {
+            return 'Perdedor ' + texto.replace(/^PERDEDOR\s+/i, '');
+        }
+
+        return this.formatarSlotMataMata(texto);
+    },
+
+    obterDadosExibicaoMataMata: function (slotResolvido, slotOriginal) {
+        var valor = slotResolvido || slotOriginal;
+        var selecao = this.state.selecoes && this.state.selecoes[valor]
+            ? this.state.selecoes[valor]
+            : null;
+        var nome = this.obterNomeSelecaoOuSlot(valor);
+
+        return {
+            nome: nome,
+            legenda: this.formatarLegendaOrigemMataMata(slotOriginal || valor),
+            bandeira: this.obterUrlBandeira(selecao),
+            alt: selecao && selecao.nome ? selecao.nome : nome
+        };
+    },
+
     obterRodadasGruposDisponiveis: function () {
         var rodadas = [];
         var mapa = {};
@@ -3617,26 +4189,32 @@
         var jogosRodada = this.state.jogos.filter(function (jogo) {
             return jogo.fase === 'grupos' && parseInt(jogo.rodada, 10) === parseInt(rodada, 10);
         });
+        var jogosPendentes = [];
 
         for (var i = 0; i < jogosRodada.length; i++) {
             var jogo = jogosRodada[i];
             var palpite = this.state.palpites[jogo.id];
 
             if (!palpite || palpite.placarA === null || palpite.placarB === null) {
-                this.exibirMensagem(
-                    'warning',
-                    'Rodada incompleta',
-                    'Preencha todos os placares da rodada ' + rodada + ' antes de continuar.'
-                );
-
-                this.state.rodadaAtual = jogo.rodada || rodada || 1;
-                this.renderizarEtapa();
-
-                return false;
+                jogosPendentes.push(jogo.id);
             }
         }
 
-        return true;
+        if (!jogosPendentes.length) {
+            return true;
+        }
+
+        this.exibirMensagem(
+            'warning',
+            'Rodada incompleta',
+            'Preencha todos os placares da rodada ' + rodada + ' antes de continuar.'
+        );
+
+        this.state.rodadaAtual = rodada || 1;
+        this.renderizarEtapa();
+        this.destacarJogosPendentes(jogosPendentes);
+
+        return false;
     },
 
     atualizarBotoes: function () {

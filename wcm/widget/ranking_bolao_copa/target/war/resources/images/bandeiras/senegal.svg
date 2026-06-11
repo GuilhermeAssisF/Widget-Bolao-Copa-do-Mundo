@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_SENEGAL">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_SENEGAL)">
+    <rect x="0" y="0" width="133" height="267" fill="#00853F"/><rect x="133" y="0" width="133" height="267" fill="#FDEF42"/><rect x="266" y="0" width="134" height="267" fill="#E31B23"/><polygon points="200,113 206,129 222,129 209,139 214,155 200,145 186,155 191,139 178,129 194,129" fill="#0A0A0A"/>
+  </g>
+</svg>

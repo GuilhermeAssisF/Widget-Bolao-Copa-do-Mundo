@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_AUSTRÁLIA">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_AUSTRÁLIA)">
+    <rect x="0" y="0" width="400" height="267" fill="#00008B"/><rect x="0" y="0" width="180" height="267" fill="#0A0A0A" opacity="0.4"/><line x1="0" y1="0" x2="180" y2="267" stroke="#FFFFFF" stroke-width="12"/><line x1="180" y1="0" x2="0" y2="267" stroke="#FFFFFF" stroke-width="12"/><rect x="0" y="106" width="180" height="53" fill="#FFFFFF"/><rect x="72" y="0" width="36" height="267" fill="#FFFFFF"/><circle cx="60" cy="50" r="6" fill="#FFFFFF"/><circle cx="120" cy="30" r="6" fill="#FFFFFF"/><circle cx="60" cy="130" r="6" fill="#FFFFFF"/><circle cx="150" cy="100" r="6" fill="#FFFFFF"/><circle cx="100" cy="80" r="6" fill="#FFFFFF"/>
+  </g>
+</svg>

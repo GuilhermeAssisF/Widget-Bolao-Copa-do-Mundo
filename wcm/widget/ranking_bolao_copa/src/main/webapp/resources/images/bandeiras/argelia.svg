@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_ARGÉLIA">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_ARGÉLIA)">
+    <rect x="0" y="0" width="400" height="133" fill="#FFFFFF"/><rect x="0" y="133" width="400" height="133" fill="#006233"/><circle cx="200" cy="133" r="55" fill="#D21034"/><circle cx="222" cy="133" r="44" fill="#FFFFFF"/><polygon points="210,115 260,133 210,151" fill="#D21034"/>
+  </g>
+</svg>

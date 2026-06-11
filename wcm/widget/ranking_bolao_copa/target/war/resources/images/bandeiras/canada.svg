@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_CANADÁ">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_CANADÁ)">
+    <rect x="0" y="0" width="100" height="267" fill="#FF0000"/><rect x="100" y="0" width="200" height="267" fill="#FFFFFF"/><rect x="300" y="0" width="100" height="267" fill="#FF0000"/><polygon points="200,83 210,113 240,103 225,128 250,143 220,143 215,168 200,153 185,168 180,143 150,143 175,128 160,103 190,113" fill="#FF0000"/>
+  </g>
+</svg>

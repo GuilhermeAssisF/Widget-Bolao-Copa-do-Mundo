@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_CURAÇAO">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_CURAÇAO)">
+    <rect x="0" y="0" width="400" height="267" fill="#002B7F"/><line x1="0" y1="0" x2="400" y2="267" stroke="#FFFFFF" stroke-width="3"/><line x1="0" y1="89" x2="400" y2="356" stroke="#FFFFFF" stroke-width="3"/><circle cx="80" cy="93" r="8" fill="#F9E814"/><circle cx="140" cy="93" r="8" fill="#F9E814"/><circle cx="200" cy="93" r="8" fill="#F9E814"/><circle cx="260" cy="93" r="8" fill="#F9E814"/><circle cx="320" cy="93" r="8" fill="#F9E814"/>
+  </g>
+</svg>

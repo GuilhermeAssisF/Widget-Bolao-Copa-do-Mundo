@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" width="400" height="267">
+  <defs>
+    <clipPath id="clip_URUGUAI">
+      <rect x="0" y="0" width="400" height="267" rx="20" ry="20"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip_URUGUAI)">
+    <rect x="0" y="0" width="400" height="30" fill="#5BA4CF"/><rect x="0" y="29" width="400" height="30" fill="#FFFFFF"/><rect x="0" y="59" width="400" height="30" fill="#5BA4CF"/><rect x="0" y="89" width="400" height="30" fill="#FFFFFF"/><rect x="0" y="118" width="400" height="30" fill="#5BA4CF"/><rect x="0" y="148" width="400" height="30" fill="#FFFFFF"/><rect x="0" y="178" width="400" height="30" fill="#5BA4CF"/><rect x="0" y="207" width="400" height="30" fill="#FFFFFF"/><rect x="0" y="237" width="400" height="30" fill="#5BA4CF"/><rect x="0" y="0" width="168" height="120" fill="#5BA4CF"/><circle cx="84" cy="58" r="35" fill="#FFD100"/><line x1="122" y1="58" x2="136" y2="58" stroke="#FFD100" stroke-width="3"/><line x1="119" y1="73" x2="132" y2="78" stroke="#FFD100" stroke-width="3"/><line x1="111" y1="85" x2="121" y2="95" stroke="#FFD100" stroke-width="3"/><line x1="99" y1="93" x2="104" y2="106" stroke="#FFD100" stroke-width="3"/><line x1="84" y1="96" x2="84" y2="110" stroke="#FFD100" stroke-width="3"/><line x1="69" y1="93" x2="64" y2="106" stroke="#FFD100" stroke-width="3"/><line x1="57" y1="85" x2="47" y2="95" stroke="#FFD100" stroke-width="3"/><line x1="49" y1="73" x2="36" y2="78" stroke="#FFD100" stroke-width="3"/><line x1="46" y1="58" x2="32" y2="58" stroke="#FFD100" stroke-width="3"/><line x1="49" y1="43" x2="36" y2="38" stroke="#FFD100" stroke-width="3"/><line x1="57" y1="31" x2="47" y2="21" stroke="#FFD100" stroke-width="3"/><line x1="69" y1="23" x2="64" y2="10" stroke="#FFD100" stroke-width="3"/><line x1="84" y1="20" x2="84" y2="6" stroke="#FFD100" stroke-width="3"/><line x1="99" y1="23" x2="104" y2="10" stroke="#FFD100" stroke-width="3"/><line x1="111" y1="31" x2="121" y2="21" stroke="#FFD100" stroke-width="3"/><line x1="119" y1="43" x2="132" y2="38" stroke="#FFD100" stroke-width="3"/>
+  </g>
+</svg>

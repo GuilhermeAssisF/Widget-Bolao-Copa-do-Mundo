@@ -218,7 +218,7 @@ function buildDebugPayload(payload) {
 
 function buildDestinatarios(payload) {
     var destinatarios = new java.util.ArrayList();
-    destinatarios.add(getValueOrDefault(payload.destinatario, 'assisguilhermefernandes@gmail.com'));
+    destinatarios.add(getValueOrDefault(payload.destinatario, 'marketing@interhativaoperacional.com'));
     return destinatarios;
 }
 
@@ -266,7 +266,7 @@ function createDataset(fields, constraints, sortFields) {
         }
 
         if (!payload.destinatario) {
-            payload.destinatario = 'assisguilhermefernandes@gmail.com';
+            payload.destinatario = 'marketing@interhativaoperacional.com';
         }
 
         sendEmailViaNotifier(payload);
@@ -283,7 +283,7 @@ function createDataset(fields, constraints, sortFields) {
         dataset.addRow([
             'false',
             String(e && e.message ? e.message : e),
-            getValueOrDefault(getConstraintValue(constraints, 'destinatario'), 'assisguilhermefernandes@gmail.com'),
+            getValueOrDefault(getConstraintValue(constraints, 'destinatario'), 'marketing@interhativaoperacional.com'),
             'Bolao Copa 2026 - resultado publicado',
             String(new java.util.Date()),
             ''
