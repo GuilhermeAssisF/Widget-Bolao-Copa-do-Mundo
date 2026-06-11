@@ -492,7 +492,9 @@ var WidgetRankingBolaoCopa = SuperWidget.extend({
         detalhados: [],
         pontosDistribuidos: 0,
         pontosParciaisDistribuidos: 0,
+        abaAtiva: 'ranking',
         participanteSelecionado: null,
+        filtroJogosParticipante: 'todos',
         filtroDetalhe: 'todos'
     },
 
@@ -545,6 +547,65 @@ var WidgetRankingBolaoCopa = SuperWidget.extend({
             var destino = $(this).attr('data-ranking-nav');
             that.ativarItemMenu(destino);
             that.rolarParaSecao(destino);
+        });
+    },
+
+    registrarEventosAbas: function () {
+        var that = this;
+        var $widget = this.getWidget();
+
+        $widget.find('[data-ranking-tab]').off('click.rankingBolaoTabs').on('click.rankingBolaoTabs', function () {
+            var tab = $(this).data('ranking-tab') || 'ranking';
+
+            that.state.abaAtiva = tab;
+
+            if (tab === 'ranking' || tab === 'participantes') {
+                that.state.participanteSelecionado = null;
+                that.state.filtroJogosParticipante = 'todos';
+            }
+
+            if (tab === 'ranking') {
+                that.state.participanteSelecionado = null;
+            }
+
+            that.renderTudo();
+        });
+    },
+
+    registrarEventosParticipantes: function () {
+        var that = this;
+        var $widget = this.getWidget();
+
+        $widget.find('[data-participante-ranking]').off('click.rankingBolaoParticipantes').on('click.rankingBolaoParticipantes', function () {
+            var participante = $(this).data('participante-ranking');
+
+            that.state.participanteSelecionado = participante || null;
+            that.state.abaAtiva = 'participante';
+            that.state.filtroJogosParticipante = 'todos';
+
+            that.renderTudo();
+        });
+    },
+
+    registrarEventosVoltarParticipantes: function () {
+        var that = this;
+        var $widget = this.getWidget();
+
+        $widget.find('.ranking-back-participants').off('click.rankingBolaoVoltar').on('click.rankingBolaoVoltar', function () {
+            that.state.abaAtiva = 'participantes';
+            that.state.participanteSelecionado = null;
+            that.state.filtroJogosParticipante = 'todos';
+            that.renderTudo();
+        });
+    },
+
+    registrarEventosFiltrosJogos: function () {
+        var that = this;
+        var $widget = this.getWidget();
+
+        $widget.find('[data-filtro-jogos]').off('click.rankingBolaoFiltrosJogos').on('click.rankingBolaoFiltrosJogos', function () {
+            that.state.filtroJogosParticipante = $(this).data('filtro-jogos') || 'todos';
+            that.renderTudo();
         });
     },
 
@@ -702,8 +763,11 @@ var WidgetRankingBolaoCopa = SuperWidget.extend({
         this.state.pontosDistribuidos = calculo.pontosDistribuidos || 0;
         this.state.pontosParciaisDistribuidos = calculo.pontosParciaisDistribuidos || 0;
 
-        if (!this.state.participanteSelecionado || !this.existeParticipante(this.state.participanteSelecionado)) {
-            this.state.participanteSelecionado = this.state.ranking.length ? this.state.ranking[0].participante : null;
+        if (this.state.participanteSelecionado && !this.existeParticipante(this.state.participanteSelecionado)) {
+            this.state.participanteSelecionado = null;
+            if (this.state.abaAtiva === 'participante') {
+                this.state.abaAtiva = 'participantes';
+            }
         }
 
         this.renderTudo();
@@ -1428,12 +1492,44 @@ var WidgetRankingBolaoCopa = SuperWidget.extend({
     },
 
     renderTudo: function () {
+        var $widget = this.getWidget();
+        var $conteudo = $(this.getSeletor('rankingConteudo'));
+        var $shell = $(this.getSeletor('rankingVisualizacaoShell'));
+        var ativoNav = 'ranking';
+
         this.renderFonteDados();
         this.renderSidebar();
         this.renderLiveCard();
-        this.renderRanking();
-        this.renderParticipantes();
-        this.renderDetalheParticipante();
+
+        if (!$shell.length && $conteudo.length) {
+            $shell = $('<div id="rankingVisualizacaoShell_' + this.instanceId + '" class="ranking-visualizacao-shell"></div>');
+            var $liveCard = $(this.getSeletor('rankingLiveCard'));
+            if ($liveCard.length) {
+                $liveCard.after($shell);
+            } else {
+                $conteudo.find('.ranking-content-header').after($shell);
+            }
+        }
+
+        if (this.state.abaAtiva === 'participantes') {
+            ativoNav = 'participantes';
+        } else if (this.state.abaAtiva === 'participante') {
+            ativoNav = 'detalhe';
+        }
+
+        if ($shell.length) {
+            $shell.html(this.renderizarConteudoPrincipal());
+        }
+
+        $conteudo.find('.ranking-panels-grid').hide();
+        $(this.getSeletor('rankingDetalheParticipante')).hide();
+
+        this.ativarItemMenu(ativoNav);
+
+        this.registrarEventosAbas();
+        this.registrarEventosParticipantes();
+        this.registrarEventosVoltarParticipantes();
+        this.registrarEventosFiltrosJogos();
     },
 
     renderFonteDados: function () {
@@ -1522,6 +1618,237 @@ var WidgetRankingBolaoCopa = SuperWidget.extend({
 
         $card.removeClass('is-empty');
         $card.html(html);
+    },
+
+    renderizarAbasVisualizacao: function () {
+        var aba = this.state.abaAtiva || 'ranking';
+        var html = '';
+
+        html += '<div class="ranking-tabs">';
+        html += '<button type="button" class="ranking-tab-btn ' + (aba === 'ranking' ? 'active' : '') + '" data-ranking-tab="ranking">Ranking</button>';
+        html += '<button type="button" class="ranking-tab-btn ' + ((aba === 'participantes' || aba === 'participante') ? 'active' : '') + '" data-ranking-tab="participantes">Participantes</button>';
+        html += '</div>';
+
+        return html;
+    },
+
+    renderizarConteudoPrincipal: function () {
+        var aba = this.state.abaAtiva || 'ranking';
+        var html = '';
+
+        html += this.renderizarAbasVisualizacao();
+
+        if (aba === 'ranking') {
+            html += this.renderizarVisaoRanking();
+        } else if (aba === 'participantes') {
+            html += this.renderizarVisaoParticipantes();
+        } else {
+            html += this.renderizarVisaoParticipanteSelecionado();
+        }
+
+        return html;
+    },
+
+    renderizarVisaoRanking: function () {
+        var html = '';
+
+        html += '<div class="ranking-view ranking-view-ranking">';
+        html += '<section class="ranking-panel ranking-panel-ranking">';
+        html += '<div class="ranking-panel-header">';
+        html += '<div>';
+        html += '<span class="bolao-eyebrow">Classificação</span>';
+        html += '<h3>Ranking geral</h3>';
+        html += '</div>';
+        html += '<span class="ranking-chip">' + this.formatarNumero((this.state.palpites || []).length) + ' palpites</span>';
+        html += '</div>';
+        html += this.renderizarTabelaRanking();
+        html += '</section>';
+        html += '</div>';
+
+        return html;
+    },
+
+    renderizarTabelaRanking: function () {
+        var ranking = this.state.ranking || [];
+        var html = '';
+
+        html += '<div class="ranking-table-wrap">';
+        html += '<table class="ranking-table">';
+        html += '<thead>';
+        html += '<tr>';
+        html += '<th>Pos.</th>';
+        html += '<th>Participante</th>';
+        html += '<th>Pontos</th>';
+        html += '<th>Exatos</th>';
+        html += '<th>Resultado</th>';
+        html += '<th>Jogos pontuados</th>';
+        html += '</tr>';
+        html += '</thead>';
+        html += '<tbody>';
+
+        if (!ranking.length) {
+            html += '<tr><td colspan="6" class="ranking-empty-cell">Nenhum participante encontrado na planilha.</td></tr>';
+        } else {
+            for (var i = 0; i < ranking.length; i++) {
+                var item = ranking[i];
+                var selecionado = item.participante === this.state.participanteSelecionado ? ' is-selected' : '';
+                var classePosicao = item.posicao === 1 ? ' top-1' : '';
+                var rowLive = (item.pontosAoVivo || 0) > 0 ? ' has-live-points' : '';
+
+                html += '<tr class="' + selecionado + rowLive + '" data-ranking-participante="' + this.escapeHtmlAttr(item.participante) + '">';
+                html += '<td><span class="ranking-posicao' + classePosicao + '">' + item.posicao + '</span></td>';
+                html += '<td><strong>' + this.escaparHtml(item.participante) + '</strong>';
+                if (item.posicaoOficial && item.posicaoOficial !== item.posicao) {
+                    html += '<small class="ranking-official-position">Oficial: ' + item.posicaoOficial + 'º</small>';
+                }
+                html += '</td>';
+                html += '<td>' + this.renderPontosRanking(item) + '</td>';
+                html += '<td>' + ((item.acertosExatos || 0) + (item.acertosExatosAoVivo || 0)) + '</td>';
+                html += '<td>' + ((item.acertosResultado || 0) + (item.acertosResultadoAoVivo || 0)) + '</td>';
+                html += '<td>' + ((item.jogosPontuados || 0) + (item.jogosPontuandoAoVivo || 0)) + '</td>';
+                html += '</tr>';
+            }
+        }
+
+        html += '</tbody>';
+        html += '</table>';
+        html += '</div>';
+
+        return html;
+    },
+
+    renderizarVisaoParticipantes: function () {
+        var html = '';
+
+        html += '<div class="ranking-view ranking-view-participantes">';
+        html += '<section class="ranking-panel ranking-panel-participantes">';
+        html += '<div class="ranking-panel-header">';
+        html += '<div>';
+        html += '<span class="bolao-eyebrow">Consulta</span>';
+        html += '<h3>Participantes</h3>';
+        html += '</div>';
+        html += '</div>';
+        html += this.renderizarListaParticipantes();
+        html += '</section>';
+        html += '</div>';
+
+        return html;
+    },
+
+    renderizarListaParticipantes: function () {
+        var ranking = this.state.ranking || [];
+        var html = '';
+
+        html += '<div class="ranking-participantes-lista">';
+
+        if (!ranking.length) {
+            html += '<p class="ranking-empty-message">Nenhum participante carregado.</p>';
+        } else {
+            for (var i = 0; i < ranking.length; i++) {
+                var item = ranking[i];
+                var selecionado = item.participante === this.state.participanteSelecionado ? ' is-selected' : '';
+
+                html += '<button type="button" class="ranking-participant-row' + selecionado + '" data-participante-ranking="' + this.escapeHtmlAttr(item.participante) + '">';
+                html += '<span class="ranking-participant-position">' + item.posicao + 'º</span>';
+                html += '<span class="ranking-participant-name">' + this.escaparHtml(item.participante) + '</span>';
+                html += '<strong>' + this.formatarNumero(item.pontosOficiais || item.pontos || 0) + ' pts</strong>';
+
+                if ((item.pontosAoVivo || 0) > 0) {
+                    html += '<small>+' + this.formatarNumero(item.pontosAoVivo) + ' ao vivo</small>';
+                }
+
+                if ((item.pontosProjetados || 0) > 0) {
+                    html += '<small>' + this.formatarNumero(item.pontosProjetados) + ' proj.</small>';
+                }
+
+                html += '</button>';
+            }
+        }
+
+        html += '</div>';
+        return html;
+    },
+
+    renderizarVisaoParticipanteSelecionado: function () {
+        var participante = this.obterParticipanteSelecionado();
+        var html = '';
+
+        html += '<div class="ranking-view ranking-view-participante">';
+
+        if (!participante) {
+            html += '<section class="ranking-participant-detail-header">';
+            html += '<button type="button" class="ranking-back-participants">&larr; Voltar para participantes</button>';
+            html += '<h3>Selecione um participante</h3>';
+            html += '<div class="ranking-empty-state">';
+            html += '<p>A lista de palpites aparecerá aqui.</p>';
+            html += '</div>';
+            html += '</section>';
+            html += '</div>';
+            return html;
+        }
+
+        var palpites = this.filtrarPalpitesPorFaseRodada(participante.palpites || []);
+        var pontosOficiais = participante.pontosOficiais || participante.pontos || 0;
+        var pontosAoVivo = participante.pontosAoVivo || 0;
+        var pontosProjetados = participante.pontosProjetados !== undefined ? participante.pontosProjetados : pontosOficiais + pontosAoVivo;
+
+        html += '<section class="ranking-participant-detail-header">';
+        html += '<button type="button" class="ranking-back-participants">&larr; Voltar para participantes</button>';
+        html += '<h3>' + this.escaparHtml(participante.participante) + '</h3>';
+        html += '<div class="ranking-participant-summary">';
+        html += '<span>Posição: <strong>' + participante.posicao + 'º</strong></span>';
+        html += '<span>Oficial: <strong>' + this.formatarNumero(pontosOficiais) + '</strong></span>';
+        html += '<span>Ao vivo: <strong>+' + this.formatarNumero(pontosAoVivo) + '</strong></span>';
+        html += '<span>Projetado: <strong>' + this.formatarNumero(pontosProjetados) + '</strong></span>';
+        html += '</div>';
+        html += '</section>';
+
+        html += this.renderizarFiltrosJogosParticipante();
+
+        html += '<div class="ranking-table-wrap">';
+        html += '<table class="ranking-table ranking-detalhe-table">';
+        html += '<thead><tr><th>Match ID</th><th>Jogo</th><th>Palpite</th><th>Resultado real</th><th>Status</th><th>Pontos</th><th>Detalhe</th></tr></thead>';
+        html += '<tbody>';
+
+        if (!palpites.length) {
+            html += '<tr><td colspan="7" class="ranking-empty-cell">Nenhum palpite encontrado para este filtro.</td></tr>';
+        } else {
+            for (var j = 0; j < palpites.length; j++) {
+                html += this.renderLinhaPalpite(palpites[j]);
+            }
+        }
+
+        html += '</tbody></table></div>';
+        html += '</div>';
+
+        return html;
+    },
+
+    renderizarFiltrosJogosParticipante: function () {
+        var filtro = this.state.filtroJogosParticipante || 'todos';
+        var filtros = [
+            { id: 'todos', label: 'Todos os jogos' },
+            { id: 'rodada_1', label: 'Primeira rodada' },
+            { id: 'rodada_2', label: 'Segunda rodada' },
+            { id: 'rodada_3', label: 'Terceira rodada' },
+            { id: 'round_32', label: '32 avos' },
+            { id: 'oitavas', label: 'Oitavas' },
+            { id: 'quartas', label: 'Quartas' },
+            { id: 'semifinal', label: 'Semifinal' },
+            { id: 'terceiro_lugar', label: 'Terceiro lugar' },
+            { id: 'final', label: 'Final' }
+        ];
+
+        var html = '<div class="ranking-game-filters">';
+
+        for (var i = 0; i < filtros.length; i++) {
+            html += '<button type="button" class="ranking-game-filter-btn ' + (filtro === filtros[i].id ? 'active' : '') + '" data-filtro-jogos="' + filtros[i].id + '">';
+            html += this.escaparHtml(filtros[i].label);
+            html += '</button>';
+        }
+
+        html += '</div>';
+        return html;
     },
 
     renderizarImpactoAoVivo: function () {
@@ -1782,13 +2109,12 @@ var WidgetRankingBolaoCopa = SuperWidget.extend({
 
     selecionarParticipante: function (participante, rolar) {
         this.state.participanteSelecionado = participante;
-        this.renderRanking();
-        this.renderParticipantes();
-        this.renderDetalheParticipante();
-        this.ativarItemMenu('detalhe');
+        this.state.abaAtiva = 'participante';
+        this.state.filtroJogosParticipante = 'todos';
+        this.renderTudo();
 
         if (rolar) {
-            this.rolarParaSecao('detalhe');
+            this.rolarParaSecao('participante');
         }
     },
 
@@ -1830,6 +2156,59 @@ var WidgetRankingBolaoCopa = SuperWidget.extend({
         }
 
         return filtrados;
+    },
+
+    filtrarPalpitesPorFaseRodada: function (palpites) {
+        var filtro = this.state.filtroJogosParticipante || 'todos';
+
+        if (filtro === 'todos') {
+            return palpites || [];
+        }
+
+        return (palpites || []).filter(function (item) {
+            var matchId = String(item.matchId || '');
+            var fase = String(item.fase || item.faseOriginal || '').toLowerCase();
+            var rodada = item.rodada || item.matchday || item.matchdayApi || null;
+            var numero = parseInt(matchId.replace(/\D/g, ''), 10);
+
+            if (filtro === 'rodada_1') {
+                return rodada == 1 || (numero >= 1 && numero <= 24);
+            }
+
+            if (filtro === 'rodada_2') {
+                return rodada == 2 || (numero >= 25 && numero <= 48);
+            }
+
+            if (filtro === 'rodada_3') {
+                return rodada == 3 || (numero >= 49 && numero <= 72);
+            }
+
+            if (filtro === 'round_32') {
+                return fase.indexOf('round') >= 0 || fase.indexOf('32') >= 0 || (numero >= 73 && numero <= 88);
+            }
+
+            if (filtro === 'oitavas') {
+                return fase.indexOf('oitavas') >= 0 || (numero >= 89 && numero <= 96);
+            }
+
+            if (filtro === 'quartas') {
+                return fase.indexOf('quartas') >= 0 || (numero >= 97 && numero <= 100);
+            }
+
+            if (filtro === 'semifinal') {
+                return fase.indexOf('semi') >= 0 || numero === 101 || numero === 102;
+            }
+
+            if (filtro === 'terceiro_lugar') {
+                return fase.indexOf('terceiro') >= 0 || numero === 103;
+            }
+
+            if (filtro === 'final') {
+                return fase === 'final' || numero === 104;
+            }
+
+            return true;
+        });
     },
 
     obterJogosAoVivo: function () {
@@ -1891,9 +2270,9 @@ var WidgetRankingBolaoCopa = SuperWidget.extend({
     rolarParaSecao: function (destino) {
         var seletor = this.getSeletor('rankingSecaoGeral');
 
-        if (destino === 'participantes') seletor = this.getSeletor('rankingSecaoParticipantes');
+        if (destino === 'participantes' || destino === 'participante' || destino === 'detalhe') seletor = this.getSeletor('rankingVisualizacaoShell');
         if (destino === 'ao-vivo') seletor = this.getSeletor('rankingLiveCard');
-        if (destino === 'detalhe') seletor = this.getSeletor('rankingDetalheParticipante');
+        if (destino === 'ranking') seletor = this.getSeletor('rankingVisualizacaoShell');
 
         var $alvo = $(seletor);
         if (!$alvo.length || typeof $('html, body').animate !== 'function') return;
@@ -1932,7 +2311,16 @@ var WidgetRankingBolaoCopa = SuperWidget.extend({
             .replace(/'/g, '&#039;');
     },
 
+    escapeHtmlAttr: function (valor) {
+        return String(valor === null || valor === undefined ? '' : valor)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    },
+
     atributo: function (valor) {
-        return this.escaparHtml(valor);
+        return this.escapeHtmlAttr(valor);
     }
 });

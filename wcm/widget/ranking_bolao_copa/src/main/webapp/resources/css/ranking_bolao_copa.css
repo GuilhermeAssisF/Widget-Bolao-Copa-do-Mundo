@@ -4452,3 +4452,186 @@
     color: #c2410c;
     font-weight: 900;
 }
+
+.bolao-copa-widget .ranking-tabs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding: 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.74);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+}
+
+.bolao-copa-widget .ranking-tab-btn {
+    border: none;
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--bolao-muted);
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    transition: all 0.2s ease;
+}
+
+.bolao-copa-widget .ranking-tab-btn:hover {
+    background: rgba(18, 56, 255, 0.07);
+    color: var(--bolao-blue);
+}
+
+.bolao-copa-widget .ranking-tab-btn.active {
+    background: linear-gradient(135deg, var(--bolao-blue), var(--bolao-purple));
+    color: #ffffff;
+    box-shadow: 0 10px 24px rgba(18, 56, 255, 0.22);
+}
+
+.bolao-copa-widget .ranking-view {
+    display: grid;
+    gap: 18px;
+}
+
+.bolao-copa-widget .ranking-participant-row {
+    width: 100%;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    transition: all 0.2s ease;
+}
+
+.bolao-copa-widget .ranking-participant-row:hover {
+    transform: translateY(-1px);
+    border-color: rgba(18, 56, 255, 0.22);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.bolao-copa-widget .ranking-participant-position {
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(18, 56, 255, 0.09);
+    color: var(--bolao-blue);
+    font-weight: 900;
+}
+
+.bolao-copa-widget .ranking-participant-name {
+    min-width: 0;
+    color: var(--bolao-dark);
+    font-weight: 900;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bolao-copa-widget .ranking-participant-detail-header {
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: var(--bolao-radius-lg);
+    padding: 22px;
+    box-shadow: var(--bolao-shadow-soft);
+}
+
+.bolao-copa-widget .ranking-back-participants {
+    border: none;
+    background: rgba(18, 56, 255, 0.08);
+    color: var(--bolao-blue);
+    border-radius: 999px;
+    min-height: 38px;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 900;
+    margin-bottom: 14px;
+}
+
+.bolao-copa-widget .ranking-participant-detail-header h3 {
+    margin: 0 0 12px 0;
+    color: var(--bolao-dark);
+    font-size: 24px;
+    font-weight: 900;
+}
+
+.bolao-copa-widget .ranking-participant-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.bolao-copa-widget .ranking-participant-summary span {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.05);
+    color: var(--bolao-muted);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.bolao-copa-widget .ranking-participant-summary strong {
+    color: var(--bolao-dark);
+}
+
+.bolao-copa-widget .ranking-game-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0;
+}
+
+.bolao-copa-widget .ranking-game-filter-btn {
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    background: #ffffff;
+    color: var(--bolao-muted);
+    border-radius: 999px;
+    min-height: 34px;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 900;
+    transition: all 0.2s ease;
+}
+
+.bolao-copa-widget .ranking-game-filter-btn:hover {
+    border-color: rgba(18, 56, 255, 0.28);
+    color: var(--bolao-blue);
+}
+
+.bolao-copa-widget .ranking-game-filter-btn.active {
+    background: var(--bolao-dark);
+    border-color: var(--bolao-dark);
+    color: #ffffff;
+}
+
+@media (max-width: 768px) {
+    .bolao-copa-widget .ranking-tabs {
+        border-radius: 20px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .bolao-copa-widget .ranking-tab-btn {
+        width: 100%;
+    }
+
+    .bolao-copa-widget .ranking-participant-row {
+        grid-template-columns: 44px minmax(0, 1fr);
+    }
+
+    .bolao-copa-widget .ranking-participant-row strong,
+    .bolao-copa-widget .ranking-participant-row small {
+        grid-column: 2;
+    }
+}
