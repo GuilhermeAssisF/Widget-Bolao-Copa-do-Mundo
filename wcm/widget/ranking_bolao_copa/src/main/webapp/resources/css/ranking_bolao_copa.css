@@ -4044,7 +4044,7 @@
 
 .bolao-ranking-widget .ranking-panels-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.75fr);
+    grid-template-columns: minmax(0, 1.8fr) minmax(260px, 0.62fr);
     gap: 18px;
 }
 
@@ -4079,24 +4079,154 @@
 
 .bolao-ranking-widget .ranking-table-wrap {
     width: 100%;
-    overflow-x: auto;
+    overflow-x: hidden;
     border-radius: 18px;
     border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.bolao-ranking-widget .ranking-classificacao-wrap {
+    padding: 12px;
+}
+
+.bolao-ranking-widget .ranking-classificacao-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.bolao-ranking-widget .ranking-classificacao-card {
+    width: 100%;
+    display: block;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 14px 16px;
+    text-align: left;
+    color: #111827;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    font: inherit;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.bolao-ranking-widget .ranking-classificacao-card:hover,
+.bolao-ranking-widget .ranking-classificacao-card.is-selected {
+    transform: translateY(-1px);
+    border-color: rgba(18, 56, 255, 0.24);
+    box-shadow: 0 12px 28px rgba(18, 56, 255, 0.08);
+}
+
+.bolao-ranking-widget .ranking-classificacao-card.has-live-points {
+    border-left: 4px solid rgba(249, 115, 22, 0.82);
+}
+
+.bolao-ranking-widget .ranking-classificacao-top {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+}
+
+.bolao-ranking-widget .ranking-classificacao-nome {
+    min-width: 0;
+}
+
+.bolao-ranking-widget .ranking-classificacao-nome strong {
+    display: block;
+    font-size: 14px;
+    line-height: 1.2;
+    word-break: normal;
+    overflow-wrap: break-word;
+}
+
+.bolao-ranking-widget .ranking-classificacao-nome small {
+    display: block;
+    margin-top: 4px;
+    color: #6b7280;
+    font-size: 11px;
+}
+
+.bolao-ranking-widget .ranking-classificacao-pontos {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.bolao-ranking-widget .ranking-classificacao-pontos-valor {
+    color: #1238ff;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.bolao-ranking-widget .ranking-classificacao-pontos-extra {
+    color: #6b7280;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: normal;
+}
+
+.bolao-ranking-widget .ranking-classificacao-footer {
+    display: none;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(15, 23, 42, 0.07);
+}
+
+.bolao-ranking-widget .ranking-classificacao-card.is-expanded .ranking-classificacao-footer {
+    display: grid;
+}
+
+.bolao-ranking-widget .ranking-classificacao-stat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-radius: 14px;
+    background: #f8fafc;
+    padding: 9px 10px;
+}
+
+.bolao-ranking-widget .ranking-classificacao-stat span {
+    color: #6b7280;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.bolao-ranking-widget .ranking-classificacao-stat strong {
+    color: #111827;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.bolao-ranking-widget .ranking-empty-card {
+    border-radius: 18px;
+    background: #ffffff;
+    border: 1px dashed rgba(15, 23, 42, 0.12);
 }
 
 .bolao-ranking-widget .ranking-table {
     width: 100%;
     border-collapse: collapse;
     background: #ffffff;
-    min-width: 720px;
+    min-width: 0;
+    table-layout: fixed;
 }
 
 .bolao-ranking-widget .ranking-table th,
 .bolao-ranking-widget .ranking-table td {
-    padding: 13px 14px;
+    padding: 10px 10px;
     border-bottom: 1px solid rgba(15, 23, 42, 0.07);
     text-align: left;
     vertical-align: middle;
+    line-height: 1.2;
 }
 
 .bolao-ranking-widget .ranking-table th {
@@ -4110,7 +4240,47 @@
 
 .bolao-ranking-widget .ranking-table td {
     color: #111827;
-    font-size: 13px;
+    font-size: 12px;
+}
+
+.bolao-ranking-widget .ranking-table th:nth-child(1),
+.bolao-ranking-widget .ranking-table td:nth-child(1) {
+    width: 66px;
+}
+
+.bolao-ranking-widget .ranking-table th:nth-child(2),
+.bolao-ranking-widget .ranking-table td:nth-child(2) {
+    width: auto;
+}
+
+.bolao-ranking-widget .ranking-table th:nth-child(3),
+.bolao-ranking-widget .ranking-table td:nth-child(3) {
+    width: 138px;
+}
+
+.bolao-ranking-widget .ranking-table th:nth-child(4),
+.bolao-ranking-widget .ranking-table td:nth-child(4) {
+    width: 76px;
+}
+
+.bolao-ranking-widget .ranking-table th:nth-child(5),
+.bolao-ranking-widget .ranking-table td:nth-child(5) {
+    width: 94px;
+}
+
+.bolao-ranking-widget .ranking-table th:nth-child(6),
+.bolao-ranking-widget .ranking-table td:nth-child(6) {
+    width: 118px;
+}
+
+.bolao-ranking-widget .ranking-table td:nth-child(2) strong,
+.bolao-ranking-widget .ranking-table td:nth-child(2) small {
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+.bolao-ranking-widget .ranking-table td:nth-child(3) {
+    white-space: normal;
 }
 
 .bolao-ranking-widget .ranking-table tbody tr {
@@ -4138,6 +4308,91 @@
 .bolao-ranking-widget .ranking-posicao.top-1 {
     color: #ffffff;
     background: linear-gradient(135deg, #1238ff, #f97316);
+}
+
+.bolao-ranking-widget .ranking-projected-points {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    line-height: 1.1;
+}
+
+.bolao-ranking-widget .ranking-projected-points small {
+    color: #6b7280;
+    font-size: 10px;
+    white-space: normal;
+}
+
+.bolao-ranking-widget .ranking-detalhe-table {
+    min-width: 0;
+}
+
+.bolao-ranking-widget .ranking-detalhe-table th:nth-child(1),
+.bolao-ranking-widget .ranking-detalhe-table td:nth-child(1) {
+    width: 30%;
+}
+
+.bolao-ranking-widget .ranking-detalhe-table th:nth-child(2),
+.bolao-ranking-widget .ranking-detalhe-table td:nth-child(2) {
+    width: 18%;
+}
+
+.bolao-ranking-widget .ranking-detalhe-table th:nth-child(3),
+.bolao-ranking-widget .ranking-detalhe-table td:nth-child(3) {
+    width: 18%;
+}
+
+.bolao-ranking-widget .ranking-detalhe-table th:nth-child(4),
+.bolao-ranking-widget .ranking-detalhe-table td:nth-child(4) {
+    width: 14%;
+}
+
+.bolao-ranking-widget .ranking-detalhe-table th:nth-child(5),
+.bolao-ranking-widget .ranking-detalhe-table td:nth-child(5) {
+    width: 82px;
+}
+
+.bolao-ranking-widget .ranking-detalhe-table th:nth-child(6),
+.bolao-ranking-widget .ranking-detalhe-table td:nth-child(6) {
+    width: auto;
+}
+
+.bolao-ranking-widget .ranking-jogo-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.bolao-ranking-widget .ranking-jogo-id {
+    display: inline-flex;
+    align-self: flex-start;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(18, 56, 255, 0.08);
+    color: #1238ff;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.bolao-ranking-widget .ranking-jogo-teams {
+    display: block;
+    overflow-wrap: anywhere;
+    font-weight: 800;
+}
+
+.bolao-ranking-widget .ranking-detalhe-table td:nth-child(3),
+.bolao-ranking-widget .ranking-detalhe-table td:nth-child(4),
+.bolao-ranking-widget .ranking-detalhe-table td:nth-child(5),
+.bolao-ranking-widget .ranking-detalhe-table td:nth-child(6) {
+    white-space: nowrap;
+}
+
+.bolao-ranking-widget .ranking-detalhe-table td:nth-child(6) {
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 .bolao-ranking-widget .ranking-participantes-lista {
@@ -4344,8 +4599,29 @@
         grid-template-columns: 1fr;
     }
 
-    .bolao-ranking-widget .ranking-table {
-        min-width: 640px;
+    .bolao-ranking-widget .ranking-classificacao-wrap {
+        padding: 10px;
+    }
+
+    .bolao-ranking-widget .ranking-classificacao-card {
+        padding: 12px;
+    }
+
+    .bolao-ranking-widget .ranking-classificacao-top {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .bolao-ranking-widget .ranking-classificacao-pontos {
+        grid-column: 1 / -1;
+        justify-self: flex-start;
+        align-items: flex-start;
+        text-align: left;
+        margin-top: 4px;
+        white-space: normal;
+    }
+
+    .bolao-ranking-widget .ranking-classificacao-footer {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -4451,6 +4727,21 @@
 .bolao-copa-widget .ranking-projected-points small {
     color: #c2410c;
     font-weight: 900;
+}
+
+.bolao-ranking-widget .ranking-table .ranking-projected-points {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    line-height: 1.1;
+    flex-wrap: nowrap;
+}
+
+.bolao-ranking-widget .ranking-table .ranking-projected-points small {
+    color: #6b7280;
+    font-size: 10px;
+    font-weight: 700;
 }
 
 .bolao-copa-widget .ranking-tabs {
@@ -4633,5 +4924,23 @@
     .bolao-copa-widget .ranking-participant-row strong,
     .bolao-copa-widget .ranking-participant-row small {
         grid-column: 2;
+    }
+}
+
+@media (max-width: 980px) {
+    .bolao-ranking-widget .bolao-sidebar {
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    .bolao-ranking-widget.bolao-sidebar-open-mobile .bolao-sidebar {
+        max-height: calc(100vh - 24px) !important;
+        overflow-y: auto !important;
+    }
+
+    .bolao-ranking-widget:not(.bolao-sidebar-open-mobile) .bolao-sidebar-body {
+        display: none !important;
     }
 }

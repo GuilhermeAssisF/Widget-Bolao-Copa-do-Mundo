@@ -493,6 +493,7 @@ var WidgetRankingBolaoCopa = SuperWidget.extend({
         pontosDistribuidos: 0,
         pontosParciaisDistribuidos: 0,
         participanteSelecionado: null,
+        participanteClassificacaoExpandido: null,
         filtroDetalhe: 'todos'
     },
 
@@ -533,7 +534,11 @@ var WidgetRankingBolaoCopa = SuperWidget.extend({
 
         $widget.on('click.rankingBolao', '[data-ranking-participante]', function () {
             var participante = $(this).attr('data-ranking-participante') || '';
-            that.selecionarParticipante(participante, true);
+            var origemClassificacao = $(this).hasClass('ranking-classificacao-card');
+            if (origemClassificacao) {
+                that.state.participanteClassificacaoExpandido = that.state.participanteClassificacaoExpandido === participante ? null : participante;
+            }
+            that.selecionarParticipante(participante, !origemClassificacao);
         });
 
         $widget.on('click.rankingBolao', '[data-ranking-filtro]', function () {
@@ -1619,7 +1624,7 @@ var WidgetRankingBolaoCopa = SuperWidget.extend({
         var html = '';
 
         if (!ranking.length) {
-            html = '<tr><td colspan="6" class="ranking-empty-cell">Nenhum participante encontrado na planilha.</td></tr>';
+            html = '<div class="ranking-empty-card ranking-empty-cell">Nenhum participante encontrado na planilha.</div>';
             $(this.getSeletor('rankingTabelaBody')).html(html);
             return;
         }
@@ -1627,21 +1632,29 @@ var WidgetRankingBolaoCopa = SuperWidget.extend({
         for (var i = 0; i < ranking.length; i++) {
             var item = ranking[i];
             var selecionado = item.participante === this.state.participanteSelecionado ? ' is-selected' : '';
+            var expandido = item.participante === this.state.participanteClassificacaoExpandido ? ' is-expanded' : '';
             var classePosicao = item.posicao === 1 ? ' top-1' : '';
             var rowLive = (item.pontosAoVivo || 0) > 0 ? ' has-live-points' : '';
 
-            html += '<tr class="' + selecionado + rowLive + '" data-ranking-participante="' + this.atributo(item.participante) + '">';
-            html += '<td><span class="ranking-posicao' + classePosicao + '">' + item.posicao + '</span></td>';
-            html += '<td><strong>' + this.escaparHtml(item.participante) + '</strong>';
+            html += '<button type="button" class="ranking-classificacao-card' + selecionado + expandido + rowLive + '" data-ranking-participante="' + this.atributo(item.participante) + '">';
+            var acertos = (item.jogosPontuados || 0) + (item.jogosPontuandoAoVivo || 0);
+            var exatos = (item.acertosExatos || 0) + (item.acertosExatosAoVivo || 0);
+            var resultado = (item.acertosResultado || 0) + (item.acertosResultadoAoVivo || 0);
+            html += '<div class="ranking-classificacao-top">';
+            html += '<span class="ranking-posicao' + classePosicao + '">' + item.posicao + '</span>';
+            html += '<span class="ranking-classificacao-nome"><strong>' + this.escaparHtml(item.participante) + '</strong>';
             if (item.posicaoOficial && item.posicaoOficial !== item.posicao) {
                 html += '<small class="ranking-official-position">Oficial: ' + item.posicaoOficial + 'º</small>';
             }
-            html += '</td>';
-            html += '<td>' + this.renderPontosRanking(item) + '</td>';
-            html += '<td>' + ((item.acertosExatos || 0) + (item.acertosExatosAoVivo || 0)) + '</td>';
-            html += '<td>' + ((item.acertosResultado || 0) + (item.acertosResultadoAoVivo || 0)) + '</td>';
-            html += '<td>' + ((item.jogosPontuados || 0) + (item.jogosPontuandoAoVivo || 0)) + '</td>';
-            html += '</tr>';
+            html += '</span>';
+            html += '<span class="ranking-classificacao-pontos">' + this.renderPontosRanking(item) + '</span>';
+            html += '</div>';
+            html += '<div class="ranking-classificacao-footer">';
+            html += this.renderClassificacaoStat('Acertos', acertos);
+            html += this.renderClassificacaoStat('Exatos', exatos);
+            html += this.renderClassificacaoStat('Resultado', resultado);
+            html += '</div>';
+            html += '</button>';
         }
 
         $(this.getSeletor('rankingTabelaBody')).html(html);
@@ -1652,18 +1665,20 @@ var WidgetRankingBolaoCopa = SuperWidget.extend({
         var oficial = item.pontosOficiais || 0;
         var aoVivo = item.pontosAoVivo || 0;
         var projetado = item.pontosProjetados !== undefined ? item.pontosProjetados : (oficial + aoVivo);
+        var total = aoVivo > 0 ? projetado : oficial;
 
         var html = '';
-        html += '<div class="ranking-projected-points">';
-        html += '<span>' + this.formatarNumero(oficial) + ' pts</span>';
+        html += '<span class="ranking-classificacao-pontos-valor">' + this.formatarNumero(total) + ' pts</span>';
 
         if (aoVivo > 0) {
-            html += '<small>+' + this.formatarNumero(aoVivo) + ' ao vivo</small>';
-            html += '<small>' + this.formatarNumero(projetado) + ' proj.</small>';
+            html += '<small class="ranking-classificacao-pontos-extra">+' + this.formatarNumero(aoVivo) + ' ao vivo</small>';
         }
 
-        html += '</div>';
         return html;
+    },
+
+    renderClassificacaoStat: function (label, value) {
+        return '<div class="ranking-classificacao-stat"><span>' + this.escaparHtml(label) + '</span><strong>' + this.formatarNumero(value || 0) + '</strong></div>';
     },
 
     renderParticipantes: function () {
@@ -1736,11 +1751,11 @@ var WidgetRankingBolaoCopa = SuperWidget.extend({
 
         html += '<div class="ranking-table-wrap">';
         html += '<table class="ranking-table ranking-detalhe-table">';
-        html += '<thead><tr><th>Match ID</th><th>Jogo</th><th>Palpite</th><th>Resultado real</th><th>Status</th><th>Pontos</th><th>Detalhe</th></tr></thead>';
+        html += '<thead><tr><th>Jogo</th><th>Palpite</th><th>Resultado real</th><th>Status</th><th>Pontos</th><th>Detalhe</th></tr></thead>';
         html += '<tbody>';
 
         if (!palpites.length) {
-            html += '<tr><td colspan="7" class="ranking-empty-cell">Nenhum palpite encontrado para este filtro.</td></tr>';
+            html += '<tr><td colspan="6" class="ranking-empty-cell">Nenhum palpite encontrado para este filtro.</td></tr>';
         } else {
             for (var i = 0; i < palpites.length; i++) {
                 html += this.renderLinhaPalpite(palpites[i]);
@@ -1769,8 +1784,7 @@ var WidgetRankingBolaoCopa = SuperWidget.extend({
         }
 
         var html = '<tr>';
-        html += '<td><strong>' + this.escaparHtml(palpite.matchId) + '</strong></td>';
-        html += '<td>' + this.escaparHtml(palpite.timeA) + ' x ' + this.escaparHtml(palpite.timeB) + '</td>';
+        html += '<td><div class="ranking-jogo-cell"><span class="ranking-jogo-id">' + this.escaparHtml(palpite.matchId) + '</span><strong class="ranking-jogo-teams">' + this.escaparHtml(palpite.timeA) + ' x ' + this.escaparHtml(palpite.timeB) + '</strong></div></td>';
         html += '<td><strong>' + this.valorPlacar(palpite.palpiteA) + ' x ' + this.valorPlacar(palpite.palpiteB) + '</strong></td>';
         html += '<td>' + resultadoReal + '</td>';
         html += '<td><span class="ranking-badge ' + badgeClasse + '">' + this.escaparHtml(palpite.statusJogo || '-') + '</span></td>';

@@ -1,3 +1,33 @@
+<script type="text/javascript" src="/webdesk/vcXMLRPC.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script type="text/javascript" src="/ranking_bolao_copa/resources/js/oauth-1.0a.js"></script>
+<#--
+    Carregamento server-side dos resultados.
+    Motivo: em alguns ambientes Fluig a API REST pública de datasets não aceita POST
+    e o DatasetFactory pode não ficar disponível no navegador em páginas WCM.
+    Aqui o dataset é consultado enquanto o FTL é renderizado e o JSON é entregue
+    ao JS como string segura.
+-->
+<#assign rankingResultadosDatasetJson = "">
+<#assign rankingResultadosDatasetStatus = "nao_consultado">
+<#attempt>
+    <#assign rankingResultadosDataset = DatasetFactory.getDataset("ds_bolao_copa_resultados_api", null, null, null)>
+    <#if rankingResultadosDataset?? && rankingResultadosDataset.values?? && (rankingResultadosDataset.values?size > 0)>
+        <#assign rankingPrimeiraLinha = rankingResultadosDataset.values[0]>
+        <#assign rankingResultadosDatasetJson = rankingPrimeiraLinha["json"]!rankingPrimeiraLinha["JSON"]!rankingPrimeiraLinha["response"]!rankingPrimeiraLinha["RESPONSE"]!"">
+        <#assign rankingResultadosDatasetStatus = "carregado">
+    <#else>
+        <#assign rankingResultadosDatasetStatus = "sem_linhas">
+    </#if>
+<#recover>
+    <#assign rankingResultadosDatasetJson = "">
+    <#assign rankingResultadosDatasetStatus = "erro_ftl">
+</#attempt>
+<script type="text/javascript">
+    window.BOLAO_RANKING_RESULTADOS_SERVER_JSON = "${rankingResultadosDatasetJson?js_string}";
+    window.BOLAO_RANKING_RESULTADOS_SERVER_STATUS = "${rankingResultadosDatasetStatus?js_string}";
+</script>
+
 <div
     id="WidgetRankingBolaoCopa_${instanceId}"
     class="fluig-style-guide wcm-widget-class super-widget bolao-copa-widget bolao-ranking-widget"
@@ -166,24 +196,10 @@
                             <span class="ranking-chip" id="rankingTotalLinhas_${instanceId}">0 palpites</span>
                         </div>
 
-                        <div class="ranking-table-wrap">
-                            <table class="ranking-table">
-                                <thead>
-                                    <tr>
-                                        <th>Pos.</th>
-                                        <th>Participante</th>
-                                        <th>Pontos</th>
-                                        <th>Exatos</th>
-                                        <th>Resultado</th>
-                                        <th>Jogos pontuados</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="rankingTabelaBody_${instanceId}">
-                                    <tr>
-                                        <td colspan="6" class="ranking-empty-cell">Carregando ranking...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="ranking-table-wrap ranking-classificacao-wrap">
+                            <div id="rankingTabelaBody_${instanceId}" class="ranking-classificacao-lista">
+                                <div class="ranking-empty-card ranking-empty-cell">Carregando ranking...</div>
+                            </div>
                         </div>
                     </section>
 

@@ -173,16 +173,13 @@
                     <div>
                         <span class="bolao-eyebrow">Planilha carregada</span>
                         <h2>Ranking geral</h2>
-                        <p id="rankingFonteDados_${instanceId}">Carregando palpites da planilha...</p>
                     </div>
-                    <div class="ranking-content-actions">
+                    <div class="ranking-content-actions" style="display:none;">
                         <button type="button" class="btn btn-default bolao-btn-secondary" id="btnRankingAtualizar_${instanceId}">
                             Atualizar ranking
                         </button>
                     </div>
                 </div>
-
-                <div id="rankingAlert_${instanceId}" class="ranking-alert" style="display:none;"></div>
 
                 <div class="ranking-live-strip" id="rankingLiveCard_${instanceId}"></div>
 
@@ -196,24 +193,10 @@
                             <span class="ranking-chip" id="rankingTotalLinhas_${instanceId}">0 palpites</span>
                         </div>
 
-                        <div class="ranking-table-wrap">
-                            <table class="ranking-table">
-                                <thead>
-                                    <tr>
-                                        <th>Pos.</th>
-                                        <th>Participante</th>
-                                        <th>Pontos</th>
-                                        <th>Exatos</th>
-                                        <th>Resultado</th>
-                                        <th>Jogos pontuados</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="rankingTabelaBody_${instanceId}">
-                                    <tr>
-                                        <td colspan="6" class="ranking-empty-cell">Carregando ranking...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="ranking-table-wrap ranking-classificacao-wrap">
+                            <div id="rankingTabelaBody_${instanceId}" class="ranking-classificacao-lista">
+                                <div class="ranking-empty-card ranking-empty-cell">Carregando ranking...</div>
+                            </div>
                         </div>
                     </section>
 
